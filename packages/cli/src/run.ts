@@ -12,10 +12,10 @@ import { stat } from 'node:fs/promises';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
 import {
-  type PersistentFileCache,
   canonicalStringify,
   createDiskCache,
   extractRepo,
+  type PersistentFileCache,
 } from '@factlas/core';
 import { coverageReport, formatCoverage } from './coverage.js';
 import { defaultPlugins } from './plugins.js';

@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { FACT_KINDS, extractRepo } from '@factlas/core';
+import { extractRepo, FACT_KINDS } from '@factlas/core';
 import { describe, expect, it } from 'vitest';
 import { coverageReport } from './coverage.js';
 import { defaultPlugins } from './plugins.js';

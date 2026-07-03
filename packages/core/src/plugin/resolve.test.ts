@@ -47,6 +47,7 @@ describe('resolveExpression', () => {
   });
 
   it('marks a template literal with expressions as dynamic', () => {
+    // biome-ignore lint/suspicious/noTemplateCurlyInString: the ${y} is TS source under test
     const r = resolveExpression(initOfX('const x = `foo${y}`;').node);
     expect(r).toEqual({ status: 'dynamic', reason: 'template-with-expressions' });
   });

@@ -19,13 +19,14 @@ import type {
   TemplateLiteral,
   V8IntrinsicIdentifier,
 } from '@babel/types';
-import { type DesignFactsPlugin, type PluginContext, babelLoc, traverse } from '@factlas/core';
+import { babelLoc, type DesignFactsPlugin, type PluginContext, traverse } from '@factlas/core';
 import type { AtRule, Container, Declaration, Document, Rule } from 'postcss';
 import { classifyCssValueType } from './classify-value.js';
 
 export { classifyCssValueType } from './classify-value.js';
 
 const NAME = '@factlas/plugin-styled';
+
 import { readFileSync } from 'node:fs';
 
 // Producer version is read from this package's own package.json so it can never
@@ -133,8 +134,12 @@ function baseIdentifier(tag: Expression | V8IntrinsicIdentifier): string | null 
       return tag.name; // css`...`
     case 'MemberExpression':
       return tag.object.type === 'Identifier' ? tag.object.name : null; // styled.button`...`
-    case 'CallExpression':
-      return baseIdentifier(tag.callee); // styled(Component)`...`, styled(x).attrs()`...`
+    case 'CallExpression': {
+      // Babel 8 widens callee to include Super/Import; we handle neither.
+      const callee = tag.callee;
+      if (callee.type === 'Super' || callee.type === 'Import') return null;
+      return baseIdentifier(callee); // styled(Component)`...`, styled(x).attrs()`...`
+    }
     default:
       return null;
   }
@@ -143,7 +148,7 @@ function baseIdentifier(tag: Expression | V8IntrinsicIdentifier): string | null 
 /** True if `name` is imported from a recognized CSS-in-JS package. */
 function isFromSource(name: string, scope: Scope, sources: Set<string>): boolean {
   const binding = scope.getBinding(name);
-  if (!binding || binding.kind !== 'module') return false;
+  if (binding?.kind !== 'module') return false;
   const decl = binding.path.parent;
   return decl.type === 'ImportDeclaration' && sources.has(decl.source.value);
 }

@@ -127,7 +127,7 @@ function resolveMember(
     const match = obj.properties.find(
       (p) => p.type === 'ObjectProperty' && !p.computed && propertyKey(p.key) === key,
     );
-    if (!match || match.type !== 'ObjectProperty') {
+    if (match?.type !== 'ObjectProperty') {
       return { status: 'unknown', reason: 'member-key-missing' };
     }
     // Values must themselves be literals (hops-1): a single hop reached the object.

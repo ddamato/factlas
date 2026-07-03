@@ -27,18 +27,17 @@ import type {
   Node,
 } from '@babel/types';
 import {
-  type DesignFactsPlugin,
-  type ImportMap,
-  type Loc,
-  type PluginContext,
   babelLoc,
   buildImportMap,
+  type DesignFactsPlugin,
   jsxElementId,
+  type Loc,
+  type PluginContext,
   traverse,
 } from '@factlas/core';
 import { classifyArbitrary, parseToken } from './token.js';
 
-export { parseToken, classifyArbitrary } from './token.js';
+export { classifyArbitrary, parseToken } from './token.js';
 
 const NAME = '@factlas/plugin-tailwind';
 

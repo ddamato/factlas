@@ -7,7 +7,7 @@
 
 import type { Fact } from '@factlas/core';
 import { buildDatabase } from './database.js';
-import { type Level, type Policy, type PolicySet, loadPolicies } from './policy.js';
+import { type Level, loadPolicies, type Policy, type PolicySet } from './policy.js';
 import type { FactDb } from './store.js';
 
 /** One policy violation, tied back to the fact that produced it. */

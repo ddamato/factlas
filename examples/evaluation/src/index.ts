@@ -8,14 +8,14 @@
  * SARIF + a pass/fail gate.
  */
 
-export { openDatabase, loadFacts } from './store.js';
-export type { FactDb } from './store.js';
-export { loadAllowedSets } from './reference.js';
-export { buildDatabase } from './database.js';
 export type { BuildDatabaseOptions } from './database.js';
-export { loadPolicies } from './policy.js';
-export type { Level, Policy, PolicySet } from './policy.js';
-export { evaluate, runPolicies, runPolicy } from './evaluate.js';
+export { buildDatabase } from './database.js';
 export type { EvalResult, EvaluateOptions, Violation } from './evaluate.js';
-export { toSarif } from './sarif.js';
+export { evaluate, runPolicies, runPolicy } from './evaluate.js';
+export type { Level, Policy, PolicySet } from './policy.js';
+export { loadPolicies } from './policy.js';
+export { loadAllowedSets } from './reference.js';
 export { formatReport } from './report.js';
+export { toSarif } from './sarif.js';
+export type { FactDb } from './store.js';
+export { loadFacts, openDatabase } from './store.js';

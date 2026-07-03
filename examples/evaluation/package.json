@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "@factlas/core": "^0.2.0",
-    "better-sqlite3": "^11.6.0"
+    "better-sqlite3": "^12.11.1"
   },
   "devDependencies": {
     "@factlas/plugin-css": "^2.0.0",
@@ -38,12 +38,12 @@
     "@factlas/plugin-jsx": "^2.0.0",
     "@factlas/plugin-styled": "^2.0.0",
     "@factlas/plugin-tailwind": "^2.0.0",
-    "@types/better-sqlite3": "^7.6.11",
-    "@types/node": "^22.10.2",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^26.1.0",
     "@types/sarif": "^2.1.7",
     "evalite": "^0.19.0",
-    "tsup": "^8.3.5",
-    "typescript": "^5.7.2",
-    "vitest": "^4.0.0"
+    "tsup": "^8.5.1",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.9"
   }
 }

@@ -12,10 +12,9 @@
 
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { assembleFacts } from './assemble.js';
-import { sortFacts } from './assemble.js';
+import { assembleFacts, sortFacts } from './assemble.js';
 import { type FileCache, fileCacheKey, runSignature } from './cache.js';
-import { type DiscoverOptions, type SnapshotHeader, discover } from './discover.js';
+import { type DiscoverOptions, discover, type SnapshotHeader } from './discover.js';
 import { extractFile } from './extract/extractFile.js';
 import type { Fact } from './fact.js';
 import { type DesignFactsPlugin, type Diagnostic, pluginVersions } from './plugin/types.js';

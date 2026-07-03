@@ -23,13 +23,13 @@ import type {
   ObjectProperty,
 } from '@babel/types';
 import {
-  type DesignFactsPlugin,
-  type ImportMap,
-  type PluginContext,
-  type RawObservationValue,
   babelLoc,
   buildImportMap,
+  type DesignFactsPlugin,
+  type ImportMap,
   jsxElementId,
+  type PluginContext,
+  type RawObservationValue,
   traverse,
 } from '@factlas/core';
 import { classifyCssValueType, isUnitlessNumberProperty } from './classify-value.js';
@@ -37,6 +37,7 @@ import { classifyCssValueType, isUnitlessNumberProperty } from './classify-value
 export { classifyCssValueType, isUnitlessNumberProperty } from './classify-value.js';
 
 const NAME = '@factlas/plugin-inline-style';
+
 import { readFileSync } from 'node:fs';
 
 // Producer version is read from this package's own package.json so it can never
@@ -84,7 +85,7 @@ function analyzeStyleAttribute(
   ctx: PluginContext,
 ): void {
   const value = attr.value;
-  if (!value || value.type !== 'JSXExpressionContainer') return;
+  if (value?.type !== 'JSXExpressionContainer') return;
   const expr = value.expression;
   if (expr.type !== 'ObjectExpression') {
     ctx.diagnostic({

@@ -2,8 +2,8 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { extractRepo } from '@factlas/core';
 import type { Fact } from '@factlas/core';
+import { extractRepo } from '@factlas/core';
 import cssPlugin from '@factlas/plugin-css';
 import inlineStyle from '@factlas/plugin-inline-style';
 import jsx from '@factlas/plugin-jsx';
@@ -11,7 +11,7 @@ import styled from '@factlas/plugin-styled';
 import tailwind from '@factlas/plugin-tailwind';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { buildDatabase } from './database.js';
-import { type Violation, evaluate, runPolicies } from './evaluate.js';
+import { evaluate, runPolicies, type Violation } from './evaluate.js';
 import { loadPolicies } from './policy.js';
 import { toSarif } from './sarif.js';
 
