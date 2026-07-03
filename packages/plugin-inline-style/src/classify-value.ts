@@ -43,6 +43,74 @@ export function classifyCssValueType(property: string, value: string): ValueType
   return 'keyword';
 }
 
+/**
+ * Properties whose bare numeric value React leaves unitless (everything else is
+ * treated as `px`). Mirrors React DOM's `isUnitlessNumber`. Keys are compared in
+ * a dash-insensitive, lowercased form so both `zIndex` and `z-index` match.
+ */
+const UNITLESS_NUMBER_PROPS = new Set(
+  [
+    'animationIterationCount',
+    'aspectRatio',
+    'borderImageOutset',
+    'borderImageSlice',
+    'borderImageWidth',
+    'boxFlex',
+    'boxFlexGroup',
+    'boxOrdinalGroup',
+    'columnCount',
+    'columns',
+    'flex',
+    'flexGrow',
+    'flexPositive',
+    'flexShrink',
+    'flexNegative',
+    'flexOrder',
+    'gridArea',
+    'gridRow',
+    'gridRowEnd',
+    'gridRowSpan',
+    'gridRowStart',
+    'gridColumn',
+    'gridColumnEnd',
+    'gridColumnSpan',
+    'gridColumnStart',
+    'fontWeight',
+    'lineClamp',
+    'lineHeight',
+    'opacity',
+    'order',
+    'orphans',
+    'scale',
+    'tabSize',
+    'widows',
+    'zIndex',
+    'zoom',
+    'fillOpacity',
+    'floodOpacity',
+    'stopOpacity',
+    'strokeDasharray',
+    'strokeDashoffset',
+    'strokeMiterlimit',
+    'strokeOpacity',
+    'strokeWidth',
+  ].map(unitlessKey),
+);
+
+/**
+ * True when a bare numeric on `property` is unitless in React (`zIndex: 10`);
+ * false when React would append `px` (`width: 10` → `10px`), which the extractor
+ * therefore records as a `length`.
+ */
+export function isUnitlessNumberProperty(property: string): boolean {
+  return UNITLESS_NUMBER_PROPS.has(unitlessKey(property));
+}
+
+/** Dash-insensitive, lowercased key for unitless-property comparison. */
+function unitlessKey(property: string): string {
+  return property.replace(/-/g, '').toLowerCase();
+}
+
 function isSingleToken(value: string): boolean {
   return value !== '' && !/\s/.test(value);
 }
