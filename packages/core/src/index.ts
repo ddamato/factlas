@@ -50,6 +50,9 @@ export type {
 
 export { TOOL_PACKAGES, toolVersions } from './tools.js';
 
+export { CACHE_FORMAT_VERSION, createDiskCache, fileCacheKey, runSignature } from './cache.js';
+export type { FileCache, FileCacheEntry, PersistentFileCache } from './cache.js';
+
 // --- Phase 2: parsing, plugin host, extraction -------------------------------
 
 export { babelLoc, postcssLoc } from './loc.js';

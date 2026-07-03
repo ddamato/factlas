@@ -11,9 +11,17 @@ import { readFileSync } from 'node:fs';
 import { stat } from 'node:fs/promises';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
-import { canonicalStringify, extractRepo } from '@factlas/core';
+import {
+  type PersistentFileCache,
+  canonicalStringify,
+  createDiskCache,
+  extractRepo,
+} from '@factlas/core';
 import { coverageReport, formatCoverage } from './coverage.js';
 import { defaultPlugins } from './plugins.js';
+
+/** Where the incremental cache lives, relative to the scanned root. */
+const CACHE_FILE = '.factlas/cache.json';
 
 /** CLI version, read from package.json so it never drifts from the release. */
 export const VERSION: string = JSON.parse(
@@ -49,6 +57,8 @@ Options:
       --pretty           Pretty-print JSON (default: compact canonical JSON)
       --stats            Print a coverage summary (kinds/certainty/sources +
                          unknown-rate) to stderr
+      --no-cache         Disable the incremental cache (.factlas/cache.json);
+                         re-extract every file
   -h, --help             Show this help
   -v, --version          Show version
 
@@ -62,6 +72,7 @@ const OPTIONS = {
   exclude: { type: 'string', multiple: true },
   pretty: { type: 'boolean' },
   stats: { type: 'boolean' },
+  'no-cache': { type: 'boolean' },
   help: { type: 'boolean', short: 'h' },
   version: { type: 'boolean', short: 'v' },
 } as const;
@@ -106,11 +117,23 @@ export async function run(argv: string[], io: CliIO): Promise<number> {
     return 1;
   }
 
+  const useCache = !values['no-cache'];
+  let cache: PersistentFileCache | undefined;
+  if (useCache) {
+    try {
+      cache = await createDiskCache(path.join(root, CACHE_FILE));
+    } catch {
+      // A cache that won't load shouldn't fail the run; extract without it.
+      cache = undefined;
+    }
+  }
+
   let result: Awaited<ReturnType<typeof extractRepo>>;
   try {
     result = await extractRepo({
       root,
       plugins: defaultPlugins,
+      ...(cache ? { cache } : {}),
       ...(values.include ? { include: values.include as string[] } : {}),
       ...(values.exclude ? { exclude: values.exclude as string[] } : {}),
       ...(values.config ? { configFiles: values.config as string[] } : {}),
@@ -118,6 +141,14 @@ export async function run(argv: string[], io: CliIO): Promise<number> {
   } catch (err) {
     io.err(`factlas: extraction failed: ${message(err)}\n`);
     return 1;
+  }
+
+  if (cache) {
+    try {
+      await cache.save();
+    } catch {
+      // Best-effort: a failed cache write must not fail an otherwise-good run.
+    }
   }
 
   const output = { snapshot_header: result.header, facts: result.facts };
@@ -130,9 +161,10 @@ export async function run(argv: string[], io: CliIO): Promise<number> {
   }
 
   const report = coverageReport(result);
+  const cacheNote = cache ? `, ${cache.hits} cached/${cache.hits + cache.misses}` : '';
   io.err(
     `factlas: ${report.facts} facts from ${report.files} files ` +
-      `(${report.unresolved} dynamic/unknown, ${report.diagnostics} diagnostics)\n`,
+      `(${report.unresolved} dynamic/unknown, ${report.diagnostics} diagnostics${cacheNote})\n`,
   );
   if (values.stats) io.err(`\n${formatCoverage(report)}`);
   return 0;
