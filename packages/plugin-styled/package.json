@@ -1,6 +1,6 @@
 {
   "name": "@factlas/plugin-styled",
-  "version": "0.0.2",
+  "version": "1.0.0",
   "description": "Factlas plugin: extract css.declaration facts from styled-components / emotion tagged templates",
   "keywords": [
     "factlas",
@@ -41,11 +41,11 @@
     "test": "vitest run"
   },
   "peerDependencies": {
-    "@factlas/core": "^0.0.2"
+    "@factlas/core": "^0.1.0"
   },
   "devDependencies": {
     "@babel/types": "^7.26.10",
-    "@factlas/core": "^0.0.2",
+    "@factlas/core": "^0.1.0",
     "@types/node": "^22.10.2",
     "postcss": "8.4.49",
     "tsup": "^8.3.5",
