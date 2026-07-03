@@ -1,5 +1,21 @@
 # @factlas/cli
 
+## 0.0.4
+
+### Patch Changes
+
+- 1b8f911: Add a coverage summary: `factlas extract --stats` prints facts by
+  kind/certainty/source plus the `unknown`/`dynamic` rate and per-reason
+  diagnostics to stderr (stdout stays pure JSON). Exposes `coverageReport` and
+  `formatCoverage` from the package for programmatic use.
+- Updated dependencies [be75e71]
+  - @factlas/core@0.0.2
+  - @factlas/plugin-tailwind@0.0.2
+  - @factlas/plugin-css@0.0.2
+  - @factlas/plugin-inline-style@0.0.2
+  - @factlas/plugin-jsx@0.0.2
+  - @factlas/plugin-styled@0.0.2
+
 ## 0.0.3
 
 ### Patch Changes

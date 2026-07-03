@@ -1,8 +1,15 @@
 {
   "name": "@factlas/plugin-jsx",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Factlas plugin: extract import, jsx.element, jsx.prop and jsx.attribute facts from TSX",
-  "keywords": ["factlas", "factlas-plugin", "jsx", "react", "components", "imports"],
+  "keywords": [
+    "factlas",
+    "factlas-plugin",
+    "jsx",
+    "react",
+    "components",
+    "imports"
+  ],
   "type": "module",
   "exports": {
     ".": {
@@ -12,7 +19,9 @@
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "sideEffects": false,
   "repository": {
     "type": "git",
@@ -21,19 +30,23 @@
   },
   "license": "MIT",
   "author": "Donnie D'Amato",
-  "publishConfig": { "access": "public" },
-  "engines": { "node": ">=20" },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "build": "tsup",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
   "peerDependencies": {
-    "@factlas/core": "^0.0.1"
+    "@factlas/core": "^0.0.2"
   },
   "devDependencies": {
     "@babel/types": "^7.26.10",
-    "@factlas/core": "^0.0.1",
+    "@factlas/core": "^0.0.2",
     "@types/node": "^22.10.2",
     "tsup": "^8.3.5",
     "typescript": "^5.7.2",
