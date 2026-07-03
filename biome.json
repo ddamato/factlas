@@ -12,7 +12,9 @@
       "**/__snapshots__/**",
       "**/fixtures/**",
       "examples/**",
-      ".turbo/**"
+      ".turbo/**",
+      "**/package.json",
+      "**/CHANGELOG.md"
     ]
   },
   "formatter": {
