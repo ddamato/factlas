@@ -1,0 +1,207 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://factlas.dev/schema/fact.schema.json",
+  "title": "Factlas Fact",
+  "description": "A single normalized, content-addressed design-system fact. Mirrors @factlas/core src/fact.ts and is gated by FACT_SCHEMA_VERSION.",
+  "type": "object",
+  "oneOf": [
+    { "$ref": "#/$defs/jsxElementFact" },
+    { "$ref": "#/$defs/jsxPropFact" },
+    { "$ref": "#/$defs/jsxAttributeFact" },
+    { "$ref": "#/$defs/importFact" },
+    { "$ref": "#/$defs/cssDeclarationFact" },
+    { "$ref": "#/$defs/cssClassFact" }
+  ],
+  "$defs": {
+    "loc": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["line", "col", "endLine", "endCol"],
+      "properties": {
+        "line": { "type": "integer", "minimum": 0 },
+        "col": { "type": "integer", "minimum": 0 },
+        "endLine": { "type": "integer", "minimum": 0 },
+        "endCol": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "certainty": {
+      "type": "string",
+      "enum": ["literal", "static-union", "dynamic", "unknown"]
+    },
+    "source": {
+      "type": "string",
+      "enum": ["plain-css", "css-module", "inline", "css-in-js", "tailwind", "babel-jsx"]
+    },
+    "valueType": {
+      "type": "string",
+      "enum": [
+        "color",
+        "length",
+        "number",
+        "keyword",
+        "string",
+        "url",
+        "shadow",
+        "module",
+        "dynamic",
+        "union"
+      ]
+    },
+    "value": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["raw", "norm", "type"],
+      "properties": {
+        "raw": { "type": "string" },
+        "norm": { "type": ["string", "null"] },
+        "type": { "$ref": "#/$defs/valueType" }
+      }
+    },
+    "envelope": {
+      "type": "object",
+      "required": [
+        "fact_id",
+        "kind",
+        "schema_v",
+        "file",
+        "loc",
+        "source",
+        "producer_v",
+        "certainty"
+      ],
+      "properties": {
+        "fact_id": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "jsx.element",
+            "jsx.prop",
+            "jsx.attribute",
+            "import",
+            "css.declaration",
+            "css.class"
+          ]
+        },
+        "schema_v": { "type": "string" },
+        "file": { "type": "string" },
+        "loc": { "$ref": "#/$defs/loc" },
+        "source": { "$ref": "#/$defs/source" },
+        "producer_v": { "type": "string" },
+        "certainty": { "$ref": "#/$defs/certainty" },
+        "diagnostic": { "type": "string" }
+      }
+    },
+    "jsxElementFact": {
+      "allOf": [{ "$ref": "#/$defs/envelope" }],
+      "required": ["subject"],
+      "properties": {
+        "kind": { "const": "jsx.element" },
+        "subject": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["name", "imported_from", "is_dom"],
+          "properties": {
+            "name": { "type": "string" },
+            "imported_from": { "type": ["string", "null"] },
+            "is_dom": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "jsxPropFact": {
+      "allOf": [{ "$ref": "#/$defs/envelope" }],
+      "required": ["subject", "value"],
+      "properties": {
+        "kind": { "const": "jsx.prop" },
+        "subject": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["component", "prop", "element_id"],
+          "properties": {
+            "component": { "type": "string" },
+            "prop": { "type": "string" },
+            "element_id": { "type": "string" }
+          }
+        },
+        "value": { "$ref": "#/$defs/value" }
+      }
+    },
+    "jsxAttributeFact": {
+      "allOf": [{ "$ref": "#/$defs/envelope" }],
+      "required": ["subject", "value"],
+      "properties": {
+        "kind": { "const": "jsx.attribute" },
+        "subject": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["owner", "attribute", "element_id"],
+          "properties": {
+            "owner": { "type": "string" },
+            "attribute": { "type": "string" },
+            "element_id": { "type": "string" }
+          }
+        },
+        "value": { "$ref": "#/$defs/value" }
+      }
+    },
+    "importFact": {
+      "allOf": [{ "$ref": "#/$defs/envelope" }],
+      "required": ["subject", "value"],
+      "properties": {
+        "kind": { "const": "import" },
+        "subject": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["specifier", "local", "import_kind"],
+          "properties": {
+            "specifier": { "type": "string" },
+            "local": { "type": "string" },
+            "import_kind": {
+              "type": "string",
+              "enum": ["default", "named", "namespace", "side-effect"]
+            }
+          }
+        },
+        "value": { "$ref": "#/$defs/value" }
+      }
+    },
+    "cssDeclarationFact": {
+      "allOf": [{ "$ref": "#/$defs/envelope" }],
+      "required": ["subject", "value"],
+      "properties": {
+        "kind": { "const": "css.declaration" },
+        "subject": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["property", "selector", "media", "owner_component"],
+          "properties": {
+            "property": { "type": "string" },
+            "selector": { "type": ["string", "null"] },
+            "media": { "type": ["string", "null"] },
+            "owner_component": { "type": ["string", "null"] }
+          }
+        },
+        "value": { "$ref": "#/$defs/value" }
+      }
+    },
+    "cssClassFact": {
+      "allOf": [{ "$ref": "#/$defs/envelope" }],
+      "required": ["subject", "value"],
+      "properties": {
+        "kind": { "const": "css.class" },
+        "subject": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["token", "utility", "is_arbitrary", "element_id"],
+          "properties": {
+            "token": { "type": "string" },
+            "utility": { "type": ["string", "null"] },
+            "is_arbitrary": { "type": "boolean" },
+            "element_id": { "type": ["string", "null"] }
+          }
+        },
+        "value": { "$ref": "#/$defs/value" }
+      }
+    }
+  }
+}
