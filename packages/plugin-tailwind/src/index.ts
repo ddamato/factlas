@@ -17,13 +17,23 @@
  * Phase 4 step 12.
  */
 
-import type { NodePath, Scope } from '@babel/traverse';
-import type { Expression, JSXIdentifier, JSXNamespacedName, Node } from '@babel/types';
+import { readFileSync } from 'node:fs';
+import type { Scope } from '@babel/traverse';
+import type {
+  Expression,
+  JSXIdentifier,
+  JSXNamespacedName,
+  JSXOpeningElement,
+  Node,
+} from '@babel/types';
 import {
   type DesignFactsPlugin,
+  type ImportMap,
   type Loc,
   type PluginContext,
   babelLoc,
+  buildImportMap,
+  jsxElementId,
   traverse,
 } from '@factlas/core';
 import { classifyArbitrary, parseToken } from './token.js';
@@ -31,7 +41,6 @@ import { classifyArbitrary, parseToken } from './token.js';
 export { parseToken, classifyArbitrary } from './token.js';
 
 const NAME = '@factlas/plugin-tailwind';
-import { readFileSync } from 'node:fs';
 
 // Producer version is read from this package's own package.json so it can never
 // drift from the published version (resolves the same in dist/ and src/).
@@ -72,12 +81,20 @@ export function tailwindPlugin(options: TailwindPluginOptions = {}): DesignFacts
     name: NAME,
     version: VERSION,
     analyzeProgram(ast, ctx) {
+      const imports = buildImportMap(ast);
       traverse(ast, {
         JSXAttribute: (path) => {
           const name = attrName(path.node.name);
           if (name !== 'className' && name !== 'class') return;
           const value = path.node.value;
           if (!value) return;
+          // Link each class to its owning element (same id core assigns the
+          // jsx.element), so a className joins back to <Button imported_from=…>.
+          const parent = path.parent;
+          const elementId =
+            parent.type === 'JSXOpeningElement'
+              ? jsxElementId(parent as JSXOpeningElement, ctx.file, imports)
+              : null;
           const loc = babelLoc(value);
           const tokens: CollectedToken[] = [];
           if (value.type === 'StringLiteral') {
@@ -88,10 +105,11 @@ export function tailwindPlugin(options: TailwindPluginOptions = {}): DesignFacts
           ) {
             collect(value.expression, false, path.scope, combiners, ctx, tokens);
           }
-          for (const t of dedupe(tokens)) emitToken(t, loc, ctx);
+          for (const t of dedupe(tokens)) emitToken(t, loc, elementId, ctx);
         },
         // cva defines class variants outside a className attribute; collect them
-        // wherever they appear. Every cva class is conditionally applied.
+        // wherever they appear. Every cva class is conditionally applied and has
+        // no owning element.
         CallExpression: (path) => {
           const callee = path.node.callee;
           if (callee.type !== 'Identifier' || callee.name !== CVA) return;
@@ -102,7 +120,7 @@ export function tailwindPlugin(options: TailwindPluginOptions = {}): DesignFacts
             }
           }
           const loc = babelLoc(path.node);
-          for (const t of dedupe(tokens)) emitToken(t, loc, ctx);
+          for (const t of dedupe(tokens)) emitToken(t, loc, null, ctx);
         },
       });
     },
@@ -204,7 +222,12 @@ function collect(
   }
 }
 
-function emitToken(t: CollectedToken, loc: Loc, ctx: PluginContext): void {
+function emitToken(
+  t: CollectedToken,
+  loc: Loc,
+  elementId: string | null,
+  ctx: PluginContext,
+): void {
   const parsed = parseToken(t.token);
   const value = parsed.is_arbitrary
     ? { raw: parsed.arbitrary as string, type: classifyArbitrary(parsed.arbitrary as string) }
@@ -217,7 +240,7 @@ function emitToken(t: CollectedToken, loc: Loc, ctx: PluginContext): void {
       token: parsed.token,
       utility: parsed.utility,
       is_arbitrary: parsed.is_arbitrary,
-      element_id: null,
+      element_id: elementId,
     },
     value: t.union ? { ...value, certaintyHint: 'static-union' } : value,
   });

@@ -73,6 +73,16 @@ export type {
 export { extractFile } from './extract/extractFile.js';
 export type { ExtractFileOptions, ExtractFileResult } from './extract/extractFile.js';
 
+export {
+  buildImportMap,
+  isIntrinsicElement,
+  jsxElementBase,
+  jsxElementId,
+  jsxElementIdentity,
+  jsxElementName,
+} from './jsx.js';
+export type { ImportInfo, ImportMap } from './jsx.js';
+
 // --- Phase 3: normalization, classification, assembly ------------------------
 
 export { classifyCertainty } from './classify.js';
