@@ -1,6 +1,6 @@
 {
   "name": "@factlas/plugin-inline-style",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "Factlas plugin: extract css.declaration facts from JSX style={{}} objects",
   "keywords": [
     "factlas",
@@ -41,11 +41,11 @@
     "test": "vitest run"
   },
   "peerDependencies": {
-    "@factlas/core": "^0.2.0"
+    "@factlas/core": "^0.3.0"
   },
   "devDependencies": {
     "@babel/types": "^7.26.10",
-    "@factlas/core": "^0.2.0",
+    "@factlas/core": "^0.3.0",
     "@types/node": "^22.10.2",
     "tsup": "^8.3.5",
     "typescript": "^5.7.2",
