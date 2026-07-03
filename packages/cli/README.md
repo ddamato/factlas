@@ -29,6 +29,8 @@ factlas extract [path] [options]
     --config <file>    Config file folded into the snapshot header (repeatable;
                        e.g. tailwind.config.ts) so a change invalidates caches
     --pretty           Pretty-print JSON (default: compact canonical JSON)
+    --stats            Print a coverage summary (kinds/certainty/sources +
+                       unknown-rate) to stderr
 -h, --help             Show help
 -v, --version          Show version
 ```

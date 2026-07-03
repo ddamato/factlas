@@ -12,6 +12,7 @@ import { stat } from 'node:fs/promises';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
 import { canonicalStringify, extractRepo } from '@factlas/core';
+import { coverageReport, formatCoverage } from './coverage.js';
 import { defaultPlugins } from './plugins.js';
 
 /** CLI version, read from package.json so it never drifts from the release. */
@@ -46,6 +47,8 @@ Options:
       --config <file>    Config file folded into the snapshot header (repeatable;
                          e.g. tailwind.config.ts) so a change invalidates caches
       --pretty           Pretty-print JSON (default: compact canonical JSON)
+      --stats            Print a coverage summary (kinds/certainty/sources +
+                         unknown-rate) to stderr
   -h, --help             Show this help
   -v, --version          Show version
 
@@ -58,6 +61,7 @@ const OPTIONS = {
   include: { type: 'string', multiple: true },
   exclude: { type: 'string', multiple: true },
   pretty: { type: 'boolean' },
+  stats: { type: 'boolean' },
   help: { type: 'boolean', short: 'h' },
   version: { type: 'boolean', short: 'v' },
 } as const;
@@ -125,13 +129,12 @@ export async function run(argv: string[], io: CliIO): Promise<number> {
     io.out(`${json}\n`);
   }
 
-  const unresolved = result.facts.filter(
-    (f) => f.certainty === 'dynamic' || f.certainty === 'unknown',
-  ).length;
+  const report = coverageReport(result);
   io.err(
-    `factlas: ${result.facts.length} facts from ${result.header.file_count} files ` +
-      `(${unresolved} dynamic/unknown, ${result.diagnostics.length} diagnostics)\n`,
+    `factlas: ${report.facts} facts from ${report.files} files ` +
+      `(${report.unresolved} dynamic/unknown, ${report.diagnostics} diagnostics)\n`,
   );
+  if (values.stats) io.err(`\n${formatCoverage(report)}`);
   return 0;
 }
 
