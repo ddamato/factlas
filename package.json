@@ -1,0 +1,34 @@
+{
+  "name": "factlas-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Deterministic design-system fact extraction & conformance evaluation",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ddamato/factlas.git"
+  },
+  "license": "MIT",
+  "author": "Donnie D'Amato",
+  "engines": {
+    "node": ">=20"
+  },
+  "workspaces": ["packages/*"],
+  "scripts": {
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "turbo run build && changeset publish"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@changesets/cli": "^2.27.11",
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.2"
+  },
+  "packageManager": "npm@11.11.0"
+}

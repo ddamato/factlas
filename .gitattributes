@@ -1,0 +1,11 @@
+# Determinism: content hashing (sha256 of raw bytes) must be platform-stable,
+# so normalize all text to LF in the repo and in fixtures.
+* text=auto eol=lf
+
+# Binary/asset types should never be line-ending normalized.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.woff binary
+*.woff2 binary
