@@ -26,7 +26,13 @@ import { classifyCssValueType } from './classify-value.js';
 export { classifyCssValueType } from './classify-value.js';
 
 const NAME = '@factlas/plugin-styled';
-const VERSION = '0.0.1';
+import { readFileSync } from 'node:fs';
+
+// Producer version is read from this package's own package.json so it can never
+// drift from the published version (resolves the same in dist/ and src/).
+const VERSION: string = JSON.parse(
+  readFileSync(new URL('../package.json', import.meta.url), 'utf8'),
+).version;
 
 /** Packages whose `styled`/`css` exports mark a tagged template as CSS-in-JS. */
 const DEFAULT_SOURCES = new Set([

@@ -21,7 +21,7 @@
     "lint": "biome check .",
     "format": "biome format --write .",
     "changeset": "changeset",
-    "version-packages": "changeset version",
+    "version-packages": "changeset version && npm install --package-lock-only",
     "release": "turbo run build && changeset publish"
   },
   "devDependencies": {

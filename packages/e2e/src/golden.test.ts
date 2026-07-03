@@ -46,14 +46,17 @@ async function run(): Promise<{ header: SnapshotHeader; facts: Fact[] }> {
 describe('golden fixture', () => {
   it('produces a byte-stable fact stream (checked-in snapshot)', async () => {
     const { header, facts } = await run();
+    // Version-invariant view: package-version-derived fields (producer_v,
+    // plugin_versions, cache_key) legitimately change on a release, so they are
+    // excluded here to keep the checked-in snapshot stable across version bumps.
+    // The two-run equality test below still asserts full byte-stability
+    // (including versions) within a run.
     expect({
       schema_v: header.schema_v,
       normalizer_v: header.normalizer_v,
-      plugin_versions: header.plugin_versions,
       file_count: header.file_count,
       files_digest: header.files_digest,
-      cache_key: header.cache_key,
-      facts,
+      facts: facts.map(({ producer_v, ...rest }) => rest),
     }).toMatchSnapshot();
   });
 
