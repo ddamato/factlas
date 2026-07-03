@@ -1,6 +1,6 @@
 {
   "name": "@factlas/cli",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Factlas CLI: point it at a repo (locally or in CI) and emit a deterministic fact stream",
   "keywords": ["factlas", "cli", "design-tokens", "static-analysis"],
   "type": "module",
@@ -23,8 +23,12 @@
   },
   "license": "MIT",
   "author": "Donnie D'Amato",
-  "publishConfig": { "access": "public" },
-  "engines": { "node": ">=20" },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "build": "tsup",
     "typecheck": "tsc --noEmit",
