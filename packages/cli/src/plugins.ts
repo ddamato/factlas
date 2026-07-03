@@ -1,5 +1,5 @@
 /**
- * The default plugin bundle the CLI runs: the four Factlas defaults.
+ * The default plugin bundle the CLI runs: the five Factlas defaults.
  * (Programmatic users can compose their own set and call `extractRepo` directly.)
  */
 

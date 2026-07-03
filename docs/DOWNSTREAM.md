@@ -44,7 +44,9 @@ repo → factlas extract → facts.json  →   load into store
 ## Recommended components
 
 ### 1. Store
-- **DuckDB** embedded (SQLite fallback). Table-per-kind + a union view.
+- An embedded SQL database, table-per-kind + a union `facts` view. The runnable
+  reference uses **SQLite** (`better-sqlite3`); **DuckDB** is a natural swap when
+  you want columnar/analytical queries over large fact sets.
 - Idempotent upsert keyed on `fact_id`; per-file incremental via content hash
   from the snapshot header.
 - Keep a `FactStore` interface so the store is swappable (e.g. a future move to
@@ -62,8 +64,11 @@ repo → factlas extract → facts.json  →   load into store
   that *selects violation rows* (zero rows = pass).
 - Rule *types* map to parameterized SQL templates; a repo pins the bundle
   version it is evaluated against.
-- Route `dynamic`/`unknown` facts by each policy's `certaintyPolicy` (defer as
-  informational, or send to a gated Tier-2 LLM suite). Never silently pass/fail.
+- Decide how each policy treats `dynamic`/`unknown` facts **explicitly**, never
+  silently. The runnable reference does this by scoping value policies to
+  `certainty = 'literal'` and routing everything unresolved into a dedicated
+  `needs-review` policy (surfaced as a SARIF `note` for a human, or a gated
+  Tier-2 LLM suite).
 
 ### 4. Scoring & reporting
 - evalite (Vitest) deterministic scorer per policy:

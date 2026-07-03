@@ -76,7 +76,7 @@ written to **stderr**, so **stdout** stays pure JSON for piping.
 
 ## Default plugins
 
-`extract` runs the four defaults: `@factlas/plugin-css`,
+`extract` runs the five defaults: `@factlas/plugin-jsx`, `@factlas/plugin-css`,
 `@factlas/plugin-inline-style`, `@factlas/plugin-styled`,
 `@factlas/plugin-tailwind`. To compose your own set, use the programmatic API:
 
