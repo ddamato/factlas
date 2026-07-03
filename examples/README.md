@@ -14,11 +14,12 @@ dependencies are installed; imports need not resolve).
   [docs/DOWNSTREAM.md](../docs/DOWNSTREAM.md) on the `app/` above. (Out of factlas's
   scope — shown with off-the-shelf tech.)
 
-Run the CLI against any of them:
+Run the CLI against any of them (from the repo root; `npx` resolves the
+workspace CLI after `npm run build`, or the published `@factlas/cli` elsewhere):
 
 ```bash
-factlas extract examples/app
-factlas extract examples/plugins/plugin-tailwind
+npx @factlas/cli extract examples/app
+npx @factlas/cli extract examples/plugins/plugin-tailwind
 ```
 
 These directories are excluded from Biome so the intentional variety (mixed-case
