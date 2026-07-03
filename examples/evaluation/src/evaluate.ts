@@ -1,14 +1,14 @@
 /**
- * Evaluation (DOWNSTREAM.md §3–4). Load facts into the store, attach the
- * normalized allowed-sets, run each policy's SQL, and collect the violation
- * rows. Deterministic: rows are ordered by the SQL and then re-sorted, so the
- * same facts + bundle always yield the same result (and thus the same SARIF).
+ * Evaluation (DOWNSTREAM.md §3–4). Run each policy's SQL against the fact
+ * database, turn the matched rows into violations (rendering each policy's
+ * `message` template from the row's columns), and collect them. Deterministic:
+ * the same facts + policies always yield the same violations, SARIF, and scores.
  */
 
 import type { Fact } from '@factlas/core';
-import { type Level, type LoadedBundle, loadBundle } from './bundle.js';
-import { loadAllowedSets } from './reference.js';
-import { createFactStore } from './store.js';
+import { buildDatabase } from './database.js';
+import { type Level, type Policy, type PolicySet, loadPolicies } from './policy.js';
+import type { FactDb } from './store.js';
 
 /** One policy violation, tied back to the fact that produced it. */
 export interface Violation {
@@ -21,60 +21,61 @@ export interface Violation {
   col: number;
 }
 
-/** The outcome of evaluating a fact stream against a bundle. */
+/** The outcome of evaluating a fact database against a policy set. */
 export interface EvalResult {
-  bundle: LoadedBundle;
+  policySet: PolicySet;
   violations: Violation[];
   counts: Record<Level, number>;
   /** True when there are no `error`-level violations (the CI gate passes). */
   ok: boolean;
 }
 
-export interface EvaluateOptions {
-  /** Policies directory; defaults to this package's bundled `policies/`. */
-  bundleDir?: URL;
+/** Fill a `message` template's `{column}` placeholders from a result row. */
+function render(template: string, row: Record<string, unknown>): string {
+  return template.replace(/\{(\w+)\}/g, (_, key: string) => {
+    const value = row[key];
+    return value == null ? '' : String(value);
+  });
 }
 
-/** Evaluate a fact stream against the policy bundle. */
+/** Run one policy's SQL and turn its rows into violations. */
+export function runPolicy(db: FactDb, policy: Policy): Violation[] {
+  const rows = db.prepare(policy.sql).all() as Array<Record<string, unknown>>;
+  return rows.map((row) => ({
+    ruleId: policy.id,
+    level: policy.level,
+    message: render(policy.message, row),
+    factId: String(row.fact_id),
+    file: String(row.file),
+    line: Number(row.line),
+    col: Number(row.col),
+  }));
+}
+
+/** Run every policy against the database. */
+export function runPolicies(db: FactDb, policySet: PolicySet): EvalResult {
+  const violations = policySet.policies.flatMap((policy) => runPolicy(db, policy));
+  violations.sort(compareViolations);
+  const counts = tally(violations);
+  return { policySet, violations, counts, ok: counts.error === 0 };
+}
+
+export interface EvaluateOptions {
+  /** Policy-set file URL; defaults to this package's `design-system/policy.json`. */
+  policyUrl?: URL;
+}
+
+/** Convenience: build an in-memory DB from facts and evaluate it. */
 export async function evaluate(
   facts: readonly Fact[],
   options: EvaluateOptions = {},
 ): Promise<EvalResult> {
-  const db = await createFactStore(facts);
-  await loadAllowedSets(db);
-  const bundle = await loadBundle(options.bundleDir);
-
-  const violations: Violation[] = [];
-  for (const rule of bundle.rules) {
-    for (const result of db.exec(rule.query)) {
-      const at = columnLookup(result.columns, rule.id);
-      for (const row of result.values) {
-        violations.push({
-          ruleId: rule.id,
-          level: rule.level,
-          message: String(row[at('message')]),
-          factId: String(row[at('fact_id')]),
-          file: String(row[at('file')]),
-          line: Number(row[at('line')]),
-          col: Number(row[at('col')]),
-        });
-      }
-    }
+  const db = await buildDatabase(facts);
+  try {
+    return runPolicies(db, await loadPolicies(options.policyUrl));
+  } finally {
+    db.close();
   }
-  db.close();
-
-  violations.sort(compareViolations);
-  const counts = tally(violations);
-  return { bundle, violations, counts, ok: counts.error === 0 };
-}
-
-/** Resolve a result column to its index, failing loudly on the bundle contract. */
-function columnLookup(columns: string[], ruleId: string): (name: string) => number {
-  return (name) => {
-    const i = columns.indexOf(name);
-    if (i < 0) throw new Error(`policy "${ruleId}" must select a "${name}" column`);
-    return i;
-  };
 }
 
 /** Stable ordering: file, then position, then rule, then fact id. */

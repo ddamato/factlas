@@ -3,15 +3,19 @@
  * evaluation pipeline described in docs/DOWNSTREAM.md. **Demonstration only**;
  * not part of the shipped factlas project and not published.
  *
- * Pipeline: facts -> SQLite store -> normalized allowed-sets -> policy bundle
- * (SQL) -> violations -> SARIF + a pass/fail gate.
+ * Flow: design-system guidelines -> compiled policy set; facts -> SQLite DB ->
+ * normalized allowed-sets -> policies (SQL) -> violations -> evalite scores +
+ * SARIF + a pass/fail gate.
  */
 
-export { createFactStore } from './store.js';
+export { openDatabase, loadFacts } from './store.js';
+export type { FactDb } from './store.js';
 export { loadAllowedSets } from './reference.js';
-export { loadBundle } from './bundle.js';
-export type { Bundle, LoadedBundle, LoadedRule, Level, Rule } from './bundle.js';
-export { evaluate } from './evaluate.js';
+export { buildDatabase } from './database.js';
+export type { BuildDatabaseOptions } from './database.js';
+export { loadPolicies } from './policy.js';
+export type { Level, Policy, PolicySet } from './policy.js';
+export { evaluate, runPolicies, runPolicy } from './evaluate.js';
 export type { EvalResult, EvaluateOptions, Violation } from './evaluate.js';
 export { toSarif } from './sarif.js';
 export { formatReport } from './report.js';

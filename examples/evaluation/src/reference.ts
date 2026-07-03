@@ -12,7 +12,7 @@
 
 import { readFile } from 'node:fs/promises';
 import { normalizeColor, normalizeLength } from '@factlas/core';
-import type { Database } from 'sql.js';
+import type { FactDb } from './store.js';
 
 /** Minimal DTCG token shape (only what this demo reads). */
 interface DtcgToken {
@@ -23,7 +23,7 @@ interface DtcgGroup {
   [key: string]: DtcgGroup | DtcgToken;
 }
 
-const TOKENS_URL = new URL('../reference/tokens.json', import.meta.url);
+const TOKENS_URL = new URL('../design-system/tokens.json', import.meta.url);
 
 /** Flatten a DTCG tree into `{ path, type, value }` leaves. */
 function* leaves(
@@ -46,22 +46,24 @@ function* leaves(
  * populate `ref_allowed_colors` / `ref_allowed_lengths`. Each row keeps the token
  * name for nicer violation messages and audit.
  */
-export async function loadAllowedSets(db: Database): Promise<void> {
-  db.run(`
+export async function loadAllowedSets(db: FactDb): Promise<void> {
+  db.exec(`
+    DROP TABLE IF EXISTS ref_allowed_colors;
+    DROP TABLE IF EXISTS ref_allowed_lengths;
     CREATE TABLE ref_allowed_colors (token TEXT, raw TEXT, norm TEXT PRIMARY KEY);
     CREATE TABLE ref_allowed_lengths (token TEXT, raw TEXT, norm TEXT PRIMARY KEY);
   `);
+  const color = db.prepare('INSERT OR IGNORE INTO ref_allowed_colors VALUES (?,?,?)');
+  const length = db.prepare('INSERT OR IGNORE INTO ref_allowed_lengths VALUES (?,?,?)');
 
   const tree = JSON.parse(await readFile(TOKENS_URL, 'utf8')) as DtcgGroup;
   for (const { path, type, value } of leaves(tree)) {
     if (type === 'color') {
       const norm = normalizeColor(value);
-      if (norm)
-        db.run('INSERT OR IGNORE INTO ref_allowed_colors VALUES (?,?,?)', [path, value, norm]);
+      if (norm) color.run([path, value, norm]);
     } else if (type === 'dimension') {
       const norm = normalizeLength(value);
-      if (norm)
-        db.run('INSERT OR IGNORE INTO ref_allowed_lengths VALUES (?,?,?)', [path, value, norm]);
+      if (norm) length.run([path, value, norm]);
     }
   }
 }

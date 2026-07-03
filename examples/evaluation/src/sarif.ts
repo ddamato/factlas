@@ -15,16 +15,18 @@ const INFO_URI = 'https://github.com/ddamato/factlas';
 
 /** Build a SARIF log from an evaluation result. */
 export function toSarif(result: EvalResult): Log {
-  const rules: ReportingDescriptor[] = result.bundle.rules.map((rule) => ({
-    id: rule.id,
-    name: rule.title,
-    shortDescription: { text: rule.title },
+  const rules: ReportingDescriptor[] = result.policySet.policies.map((policy) => ({
+    id: policy.id,
+    name: policy.id,
+    shortDescription: { text: policy.help },
     helpUri: INFO_URI,
-    help: { text: rule.help },
-    defaultConfiguration: { level: rule.level },
+    help: { text: policy.help },
+    defaultConfiguration: { level: policy.level },
+    // Provenance: which guideline this policy was compiled from.
+    properties: { guideline: policy.guideline },
   }));
 
-  const ruleIndex = new Map(result.bundle.rules.map((rule, i) => [rule.id, i]));
+  const ruleIndex = new Map(result.policySet.policies.map((policy, i) => [policy.id, i]));
 
   const results: Result[] = result.violations.map((v) => ({
     ruleId: v.ruleId,
@@ -51,7 +53,7 @@ export function toSarif(result: EvalResult): Log {
           driver: {
             name: 'factlas-example-eval',
             informationUri: INFO_URI,
-            version: result.bundle.version,
+            version: result.policySet.version,
             rules,
           },
         },

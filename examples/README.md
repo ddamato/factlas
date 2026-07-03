@@ -9,10 +9,10 @@ dependencies are installed; imports need not resolve).
   states the fact(s) that plugin emits for the construct on that line, so the
   files double as living documentation.
 - **`evaluation/`** — a **runnable** reference for what a consumer does *with* the
-  facts: load them into a store, compare against normalized token allowed-sets,
-  run SQL policies, and emit SARIF + a CI gate. Demonstrates
-  [docs/DOWNSTREAM.md](../docs/DOWNSTREAM.md) on the `app/` above. (Out of factlas's
-  scope — shown with off-the-shelf tech.)
+  facts: compile design-system guidelines into policies, load facts into a SQLite
+  DB, score the policies with [evalite](https://evalite.dev), and emit SARIF + a CI
+  gate. Demonstrates [docs/DOWNSTREAM.md](../docs/DOWNSTREAM.md) on the `app/` above.
+  (Out of factlas's scope — shown with off-the-shelf tech.)
 
 Run the CLI against any of them (from the repo root; `npx` resolves the
 workspace CLI after `npm run build`, or the published `@factlas/cli` elsewhere):

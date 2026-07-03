@@ -2,7 +2,7 @@
   "name": "@factlas/example-evaluation",
   "version": "0.0.0",
   "private": true,
-  "description": "Runnable reference: how to evaluate factlas facts (store → allowed-sets → policies → SARIF → gate). Demonstration only; not part of the shipped project.",
+  "description": "Runnable reference: guidelines to policies, facts in a SQLite DB, evalite scoring, and a SARIF gate. Demonstration only; not part of the shipped project.",
   "type": "module",
   "bin": {
     "factlas-eval": "./dist/cli.js"
@@ -15,8 +15,7 @@
   },
   "files": [
     "dist",
-    "policies",
-    "reference"
+    "design-system"
   ],
   "license": "MIT",
   "author": "Donnie D'Amato",
@@ -26,11 +25,12 @@
   "scripts": {
     "build": "tsup",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "eval": "tsup && evalite run"
   },
   "dependencies": {
     "@factlas/core": "^0.2.0",
-    "sql.js": "^1.10.0"
+    "better-sqlite3": "^11.6.0"
   },
   "devDependencies": {
     "@factlas/plugin-css": "^2.0.0",
@@ -38,11 +38,12 @@
     "@factlas/plugin-jsx": "^2.0.0",
     "@factlas/plugin-styled": "^2.0.0",
     "@factlas/plugin-tailwind": "^2.0.0",
+    "@types/better-sqlite3": "^7.6.11",
     "@types/node": "^22.10.2",
     "@types/sarif": "^2.1.7",
-    "@types/sql.js": "^1.4.9",
+    "evalite": "^0.19.0",
     "tsup": "^8.3.5",
     "typescript": "^5.7.2",
-    "vitest": "^2.1.8"
+    "vitest": "^4.0.0"
   }
 }
