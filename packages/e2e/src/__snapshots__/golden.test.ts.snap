@@ -14,7 +14,7 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 16,
         "line": 6,
       },
-      "schema_v": "0.1.0",
+      "schema_v": "0.2.0",
       "source": "babel-jsx",
       "subject": {
         "imported_from": null,
@@ -34,7 +34,7 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 15,
         "line": 7,
       },
-      "schema_v": "0.1.0",
+      "schema_v": "0.2.0",
       "source": "babel-jsx",
       "subject": {
         "attribute": "style",
@@ -57,7 +57,7 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
     },
     {
       "certainty": "literal",
-      "fact_id": "bbbb0f2a9fcbab186cf991fc53a2d5fcde5209267fb52cc57311a6cab02d6398",
+      "fact_id": "4e3dd884664e1cb1249bf3e485eea1ad5f3a920d3f60f64d090965c18d88e486",
       "file": "Badge.tsx",
       "kind": "css.declaration",
       "loc": {
@@ -66,9 +66,10 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 8,
         "line": 8,
       },
-      "schema_v": "0.1.0",
+      "schema_v": "0.2.0",
       "source": "inline",
       "subject": {
+        "element_id": "a203c8ecfc8098fd4e527a19c9d4c4c9a88474767d2ac6b818fca0b1cb483dbe",
         "media": null,
         "owner_component": "span",
         "property": "color",
@@ -82,7 +83,7 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
     },
     {
       "certainty": "literal",
-      "fact_id": "d4c2fb3781efd5d242c4aaf7abd4ebb2007c9e63d24b398e66f1a850a184438f",
+      "fact_id": "b7834e1123ba8d5d522b42202d36bdaf9400eaf21b4f8a7e4fa73629e5490097",
       "file": "Badge.tsx",
       "kind": "css.declaration",
       "loc": {
@@ -91,9 +92,10 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 9,
         "line": 9,
       },
-      "schema_v": "0.1.0",
+      "schema_v": "0.2.0",
       "source": "inline",
       "subject": {
+        "element_id": "a203c8ecfc8098fd4e527a19c9d4c4c9a88474767d2ac6b818fca0b1cb483dbe",
         "media": null,
         "owner_component": "span",
         "property": "background-color",
@@ -107,7 +109,7 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
     },
     {
       "certainty": "literal",
-      "fact_id": "f27a9273ecafadda703f0cb388855771132022009426b7cd1f9caa3c38372819",
+      "fact_id": "5eb7e11e3efd3f4fade9b2e1d487a3ad28df39076ca0bc8bcd6894878e7302f4",
       "file": "Badge.tsx",
       "kind": "css.declaration",
       "loc": {
@@ -116,9 +118,10 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 10,
         "line": 10,
       },
-      "schema_v": "0.1.0",
+      "schema_v": "0.2.0",
       "source": "inline",
       "subject": {
+        "element_id": "a203c8ecfc8098fd4e527a19c9d4c4c9a88474767d2ac6b818fca0b1cb483dbe",
         "media": null,
         "owner_component": "span",
         "property": "padding",
@@ -132,7 +135,7 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
     },
     {
       "certainty": "literal",
-      "fact_id": "07209610a4511ed9d9b611985b1c46b8237971f0d3586422330057033b1219c6",
+      "fact_id": "5a28a8b89b2e9d4f35480b57d8722915ba04cae948ddc90fe91ff81ef68bce0d",
       "file": "Badge.tsx",
       "kind": "css.declaration",
       "loc": {
@@ -141,9 +144,10 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 11,
         "line": 11,
       },
-      "schema_v": "0.1.0",
+      "schema_v": "0.2.0",
       "source": "inline",
       "subject": {
+        "element_id": "a203c8ecfc8098fd4e527a19c9d4c4c9a88474767d2ac6b818fca0b1cb483dbe",
         "media": null,
         "owner_component": "span",
         "property": "margin-top",
@@ -157,7 +161,7 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
     },
     {
       "certainty": "literal",
-      "fact_id": "61ba02348da443bd703818ffe8b4369370ea054189dc2b54302bd49d4bc44d19",
+      "fact_id": "6dc5bbb9ccc25a410cc3b4fd18293128605ab23700bd31f1b4a7e54c632858bd",
       "file": "Badge.tsx",
       "kind": "css.declaration",
       "loc": {
@@ -166,9 +170,10 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 12,
         "line": 12,
       },
-      "schema_v": "0.1.0",
+      "schema_v": "0.2.0",
       "source": "inline",
       "subject": {
+        "element_id": "a203c8ecfc8098fd4e527a19c9d4c4c9a88474767d2ac6b818fca0b1cb483dbe",
         "media": null,
         "owner_component": "span",
         "property": "gap",
@@ -182,7 +187,7 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
     },
     {
       "certainty": "literal",
-      "fact_id": "33efe4150f33b217b1560921394c05bc82d709c63a321459e5e427612e0bfcae",
+      "fact_id": "b204b85ec4e028809e624abd7a09c26633fabc8f5a1efec2854f7666a5a2ddf4",
       "file": "Badge.tsx",
       "kind": "css.declaration",
       "loc": {
@@ -191,9 +196,10 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 13,
         "line": 13,
       },
-      "schema_v": "0.1.0",
+      "schema_v": "0.2.0",
       "source": "inline",
       "subject": {
+        "element_id": "a203c8ecfc8098fd4e527a19c9d4c4c9a88474767d2ac6b818fca0b1cb483dbe",
         "media": null,
         "owner_component": "span",
         "property": "z-index",
@@ -207,7 +213,7 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
     },
     {
       "certainty": "static-union",
-      "fact_id": "4d16c3729d9ae3784d0ebf518f696c9b313ce86fdf7d895566299032ddaa51aa",
+      "fact_id": "a3c438dcac7d50a4bca210be075163b6ae25b048e6755d1bdfe7cdde616bda01",
       "file": "Badge.tsx",
       "kind": "css.declaration",
       "loc": {
@@ -216,9 +222,10 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 14,
         "line": 14,
       },
-      "schema_v": "0.1.0",
+      "schema_v": "0.2.0",
       "source": "inline",
       "subject": {
+        "element_id": "a203c8ecfc8098fd4e527a19c9d4c4c9a88474767d2ac6b818fca0b1cb483dbe",
         "media": null,
         "owner_component": "span",
         "property": "font-weight",
@@ -232,7 +239,7 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
     },
     {
       "certainty": "literal",
-      "fact_id": "1d52c98ada5ebdd97c38e98db94598a642b51801a4309d75ef11ea7e4bc8236b",
+      "fact_id": "abfa2c5a684964fc4289f816cdafb044ae807f48fda3484ccc14c3bad982a425",
       "file": "Button.css",
       "kind": "css.declaration",
       "loc": {
@@ -241,9 +248,10 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 2,
         "line": 2,
       },
-      "schema_v": "0.1.0",
+      "schema_v": "0.2.0",
       "source": "plain-css",
       "subject": {
+        "element_id": null,
         "media": null,
         "owner_component": null,
         "property": "color",
@@ -257,7 +265,7 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
     },
     {
       "certainty": "literal",
-      "fact_id": "32dc903489478a9bc11b36fddf6420286a288b53db2eefc37c51e5e291adc3df",
+      "fact_id": "d17542bb921f3ec089a292f6463f0315e09f5afd3a00c8e390ebb112800b061d",
       "file": "Button.css",
       "kind": "css.declaration",
       "loc": {
@@ -266,9 +274,10 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 3,
         "line": 3,
       },
-      "schema_v": "0.1.0",
+      "schema_v": "0.2.0",
       "source": "plain-css",
       "subject": {
+        "element_id": null,
         "media": null,
         "owner_component": null,
         "property": "background-color",
@@ -282,7 +291,7 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
     },
     {
       "certainty": "literal",
-      "fact_id": "a517008002eb34dfe0cd1174a6c5e2005b544723148d12001f1e02773644453b",
+      "fact_id": "10f4701d9ccc7ebb1b008c090fc4b2fd2577fc5d9bb7f1bd2e79c6a7f0d38106",
       "file": "Button.css",
       "kind": "css.declaration",
       "loc": {
@@ -291,9 +300,10 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 4,
         "line": 4,
       },
-      "schema_v": "0.1.0",
+      "schema_v": "0.2.0",
       "source": "plain-css",
       "subject": {
+        "element_id": null,
         "media": null,
         "owner_component": null,
         "property": "padding",
@@ -307,7 +317,7 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
     },
     {
       "certainty": "literal",
-      "fact_id": "725030f9f4b31dfde151a7669ee2302b3a5dbbf0474bb23c8126c9a09788da67",
+      "fact_id": "e5707176a59bba811bdcd43b62c032608733a1c3f158db73afc3f9ae70e743f4",
       "file": "Button.css",
       "kind": "css.declaration",
       "loc": {
@@ -316,9 +326,10 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 5,
         "line": 5,
       },
-      "schema_v": "0.1.0",
+      "schema_v": "0.2.0",
       "source": "plain-css",
       "subject": {
+        "element_id": null,
         "media": null,
         "owner_component": null,
         "property": "border-radius",
@@ -332,7 +343,7 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
     },
     {
       "certainty": "literal",
-      "fact_id": "774db134b2454e4665d23828a421aff5b45465324cdb997d8ccd845e86208d05",
+      "fact_id": "3d270b0a689c9a0089ffa9c461560c8af72d32422cb8d690313d3915ee152c85",
       "file": "Button.css",
       "kind": "css.declaration",
       "loc": {
@@ -341,9 +352,10 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 10,
         "line": 10,
       },
-      "schema_v": "0.1.0",
+      "schema_v": "0.2.0",
       "source": "plain-css",
       "subject": {
+        "element_id": null,
         "media": "(min-width: 600px)",
         "owner_component": null,
         "property": "padding",
@@ -366,7 +378,7 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 1,
         "line": 1,
       },
-      "schema_v": "0.1.0",
+      "schema_v": "0.2.0",
       "source": "babel-jsx",
       "subject": {
         "import_kind": "default",
@@ -381,7 +393,7 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
     },
     {
       "certainty": "literal",
-      "fact_id": "0573908609c3d4b20060dccb40c8706fe2aaea5d17a8145940cd83d503d683f7",
+      "fact_id": "b0a0349b1dfd43fa4934e5b148078c70704d9f475432cc25dd75cce695214101",
       "file": "Card.tsx",
       "kind": "css.declaration",
       "loc": {
@@ -390,34 +402,10 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 6,
         "line": 3,
       },
-      "schema_v": "0.1.0",
+      "schema_v": "0.2.0",
       "source": "css-in-js",
       "subject": {
-        "media": null,
-        "owner_component": "Panel",
-        "property": "padding",
-        "selector": null,
-      },
-      "value": {
-        "norm": "8px",
-        "raw": "8px",
-        "type": "length",
-      },
-    },
-    {
-      "certainty": "literal",
-      "fact_id": "98f86d1d58e0901a67fcc97648a24f235775aa5c95c074dcf464267005925266",
-      "file": "Card.tsx",
-      "kind": "css.declaration",
-      "loc": {
-        "col": 14,
-        "endCol": 1,
-        "endLine": 6,
-        "line": 3,
-      },
-      "schema_v": "0.1.0",
-      "source": "css-in-js",
-      "subject": {
+        "element_id": null,
         "media": null,
         "owner_component": "Panel",
         "property": "color",
@@ -431,6 +419,32 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
     },
     {
       "certainty": "literal",
+      "fact_id": "d812d4f138c3766d68cbc29dcf63fdc9378355696dfe72a44c2c749f34c2ad04",
+      "file": "Card.tsx",
+      "kind": "css.declaration",
+      "loc": {
+        "col": 14,
+        "endCol": 1,
+        "endLine": 6,
+        "line": 3,
+      },
+      "schema_v": "0.2.0",
+      "source": "css-in-js",
+      "subject": {
+        "element_id": null,
+        "media": null,
+        "owner_component": "Panel",
+        "property": "padding",
+        "selector": null,
+      },
+      "value": {
+        "norm": "8px",
+        "raw": "8px",
+        "type": "length",
+      },
+    },
+    {
+      "certainty": "literal",
       "fact_id": "3e4674f1eeb39f65013da75fd6ab9cb834b8eca9969f365c7b301e5ebc87952f",
       "file": "Card.tsx",
       "kind": "jsx.element",
@@ -440,7 +454,7 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 10,
         "line": 10,
       },
-      "schema_v": "0.1.0",
+      "schema_v": "0.2.0",
       "source": "babel-jsx",
       "subject": {
         "imported_from": null,
@@ -460,7 +474,7 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 10,
         "line": 10,
       },
-      "schema_v": "0.1.0",
+      "schema_v": "0.2.0",
       "source": "babel-jsx",
       "subject": {
         "component": "Panel",
@@ -484,7 +498,7 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 10,
         "line": 10,
       },
-      "schema_v": "0.1.0",
+      "schema_v": "0.2.0",
       "source": "tailwind",
       "subject": {
         "element_id": "3e4674f1eeb39f65013da75fd6ab9cb834b8eca9969f365c7b301e5ebc87952f",
@@ -509,7 +523,7 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 10,
         "line": 10,
       },
-      "schema_v": "0.1.0",
+      "schema_v": "0.2.0",
       "source": "tailwind",
       "subject": {
         "element_id": "3e4674f1eeb39f65013da75fd6ab9cb834b8eca9969f365c7b301e5ebc87952f",
@@ -534,7 +548,7 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 10,
         "line": 10,
       },
-      "schema_v": "0.1.0",
+      "schema_v": "0.2.0",
       "source": "tailwind",
       "subject": {
         "element_id": "3e4674f1eeb39f65013da75fd6ab9cb834b8eca9969f365c7b301e5ebc87952f",
@@ -559,7 +573,7 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 10,
         "line": 10,
       },
-      "schema_v": "0.1.0",
+      "schema_v": "0.2.0",
       "source": "tailwind",
       "subject": {
         "element_id": "3e4674f1eeb39f65013da75fd6ab9cb834b8eca9969f365c7b301e5ebc87952f",
@@ -577,6 +591,6 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
   "file_count": 3,
   "files_digest": "158ec4f26ac7ccce21eb63b72edb32a1925e0214313d4f185a5d2a082edfdb0e",
   "normalizer_v": "0.2.0",
-  "schema_v": "0.1.0",
+  "schema_v": "0.2.0",
 }
 `;

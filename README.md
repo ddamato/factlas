@@ -21,7 +21,7 @@ npx @factlas/cli extract ./src > facts.json
 
 ```json
 {
-  "snapshot_header": { "schema_v": "0.1.0", "cache_key": "…", "…": "…" },
+  "snapshot_header": { "schema_v": "0.2.0", "cache_key": "…", "…": "…" },
   "facts": [
     {
       "fact_id": "1d52c98a…",

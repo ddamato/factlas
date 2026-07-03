@@ -66,7 +66,13 @@ const samples: Fact[] = [
     source: 'plain-css',
     producer_v: '@factlas/plugin-css@0.1.0',
     certainty: 'literal',
-    subject: { property: 'color', selector: '.btn', media: null, owner_component: null },
+    subject: {
+      property: 'color',
+      selector: '.btn',
+      media: null,
+      owner_component: null,
+      element_id: null,
+    },
     value: { raw: '#FFF', norm: '#ffffff', type: 'color' },
   }),
   factify({

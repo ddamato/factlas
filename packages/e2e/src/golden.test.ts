@@ -144,6 +144,19 @@ describe('golden fixture', () => {
       (f) => f.kind === 'jsx.element' && f.fact_id === classElementId,
     );
     expect(ownerElement).toBeTruthy();
+
+    // Cross-plugin join: an inline css.declaration links to its owning
+    // jsx.element (element_id from plugin-inline-style resolves to a plugin-jsx
+    // fact), and stylesheet/styled declarations carry a null element_id.
+    const inlineDecl = facts.find(
+      (f) => f.kind === 'css.declaration' && f.source === 'inline' && f.subject.element_id,
+    );
+    expect(inlineDecl).toBeTruthy();
+    const declElementId =
+      inlineDecl?.kind === 'css.declaration' ? inlineDecl.subject.element_id : null;
+    expect(facts.some((f) => f.kind === 'jsx.element' && f.fact_id === declElementId)).toBe(true);
+    const sheetDecl = facts.find((f) => f.kind === 'css.declaration' && f.source === 'plain-css');
+    expect(sheetDecl?.kind === 'css.declaration' && sheetDecl.subject.element_id).toBeNull();
   });
 });
 

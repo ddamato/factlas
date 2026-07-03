@@ -64,6 +64,8 @@ function emitDeclaration(decl: Declaration, source: FactSource, ctx: PluginConte
       selector: selectorOf(decl),
       media: mediaOf(decl),
       owner_component: null,
+      // Stylesheet declarations aren't bound to a single JSX element instance.
+      element_id: null,
     },
     value: { raw, type: classifyCssValueType(property, raw) },
   });

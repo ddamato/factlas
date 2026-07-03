@@ -122,6 +122,13 @@ export interface CssDeclarationSubject {
   selector: string | null;
   media: string | null;
   owner_component: string | null;
+  /**
+   * FK to the owning `jsx.element` fact's `fact_id` for inline styles (an
+   * element instance); `null` for stylesheet (`plain-css`/`css-module`) and
+   * styled-component (`css-in-js`) declarations, which are not bound to a single
+   * element instance.
+   */
+  element_id: string | null;
 }
 
 export interface CssClassSubject {

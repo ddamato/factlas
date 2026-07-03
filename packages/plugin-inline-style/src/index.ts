@@ -24,9 +24,12 @@ import type {
 } from '@babel/types';
 import {
   type DesignFactsPlugin,
+  type ImportMap,
   type PluginContext,
   type RawObservationValue,
   babelLoc,
+  buildImportMap,
+  jsxElementId,
   traverse,
 } from '@factlas/core';
 import { classifyCssValueType, isUnitlessNumberProperty } from './classify-value.js';
@@ -47,25 +50,36 @@ export const inlineStylePlugin: DesignFactsPlugin = {
   name: NAME,
   version: VERSION,
   analyzeProgram(ast, ctx) {
+    const imports = buildImportMap(ast);
     traverse(ast, {
-      JSXOpeningElement: (path) => analyzeElement(path.node, path.scope, ctx),
+      JSXOpeningElement: (path) => analyzeElement(path.node, path.scope, imports, ctx),
     });
   },
 };
 
 export default inlineStylePlugin;
 
-function analyzeElement(node: JSXOpeningElement, scope: Scope, ctx: PluginContext): void {
+function analyzeElement(
+  node: JSXOpeningElement,
+  scope: Scope,
+  imports: ImportMap,
+  ctx: PluginContext,
+): void {
   const owner = jsxName(node.name);
+  let elementId: string | null = null;
   for (const attr of node.attributes) {
     if (attr.type !== 'JSXAttribute' || attrName(attr.name) !== 'style') continue;
-    analyzeStyleAttribute(attr, owner, scope, ctx);
+    // Link declarations to the owning element via core's shared id, matching the
+    // jsx.element fact_id that plugin-jsx assigns. Computed once, only when needed.
+    elementId ??= jsxElementId(node, ctx.file, imports);
+    analyzeStyleAttribute(attr, owner, elementId, scope, ctx);
   }
 }
 
 function analyzeStyleAttribute(
   attr: JSXAttribute,
   owner: string,
+  elementId: string | null,
   scope: Scope,
   ctx: PluginContext,
 ): void {
@@ -97,13 +111,14 @@ function analyzeStyleAttribute(
       });
       continue;
     }
-    emitDeclaration(prop, owner, scope, ctx);
+    emitDeclaration(prop, owner, elementId, scope, ctx);
   }
 }
 
 function emitDeclaration(
   prop: ObjectProperty,
   owner: string,
+  elementId: string | null,
   scope: Scope,
   ctx: PluginContext,
 ): void {
@@ -115,7 +130,13 @@ function emitDeclaration(
     kind: 'css.declaration',
     loc: babelLoc(prop),
     source: 'inline',
-    subject: { property, selector: null, media: null, owner_component: owner },
+    subject: {
+      property,
+      selector: null,
+      media: null,
+      owner_component: owner,
+      element_id: elementId,
+    },
     value,
     ...(diagnostic ? { diagnostic } : {}),
   });

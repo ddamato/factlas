@@ -101,6 +101,21 @@ describe('inlineStylePlugin', () => {
     expect(byProp.get('flex-grow')?.value.norm).toBe('2');
   });
 
+  it('links each declaration to its owning element via a content-addressed element_id', () => {
+    const result = facts('export const B = () => <div style={{ color: "red", padding: 4 }} />;');
+    const decls = result.filter((f) => f.kind === 'css.declaration');
+    expect(decls).toHaveLength(2);
+    for (const d of decls) {
+      if (d.kind !== 'css.declaration') continue;
+      // Both declarations on the same element share one 64-hex element_id.
+      expect(d.subject.element_id).toMatch(/^[0-9a-f]{64}$/);
+    }
+    const ids = new Set(
+      decls.map((d) => (d.kind === 'css.declaration' ? d.subject.element_id : null)),
+    );
+    expect(ids.size).toBe(1);
+  });
+
   it('resolves an inline object-token member to a px length', () => {
     const result = facts(
       'const space = { sm: 4, md: 8 };\nexport const B = () => <div style={{ padding: space.md }} />;',
