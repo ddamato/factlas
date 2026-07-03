@@ -44,10 +44,10 @@
     "@factlas/core": "^0.2.0"
   },
   "devDependencies": {
-    "@babel/types": "^7.26.10",
+    "@babel/types": "^8.0.0",
     "@factlas/core": "^0.2.0",
     "@types/node": "^26.1.0",
-    "postcss": "8.4.49",
+    "postcss": "8.5.16",
     "tsup": "^8.5.1",
     "typescript": "^6.0.3",
     "vitest": "^4.1.9"

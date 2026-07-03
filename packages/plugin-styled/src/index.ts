@@ -134,8 +134,12 @@ function baseIdentifier(tag: Expression | V8IntrinsicIdentifier): string | null 
       return tag.name; // css`...`
     case 'MemberExpression':
       return tag.object.type === 'Identifier' ? tag.object.name : null; // styled.button`...`
-    case 'CallExpression':
-      return baseIdentifier(tag.callee); // styled(Component)`...`, styled(x).attrs()`...`
+    case 'CallExpression': {
+      // Babel 8 widens callee to include Super/Import; we handle neither.
+      const callee = tag.callee;
+      if (callee.type === 'Super' || callee.type === 'Import') return null;
+      return baseIdentifier(callee); // styled(Component)`...`, styled(x).attrs()`...`
+    }
     default:
       return null;
   }

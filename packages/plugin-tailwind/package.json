@@ -50,7 +50,7 @@
     }
   },
   "devDependencies": {
-    "@babel/types": "^7.26.10",
+    "@babel/types": "^8.0.0",
     "@factlas/core": "^0.2.0",
     "@types/node": "^26.1.0",
     "tsup": "^8.5.1",
