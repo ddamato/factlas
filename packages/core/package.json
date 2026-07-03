@@ -1,6 +1,6 @@
 {
   "name": "@factlas/core",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Deterministic, content-addressed design-system fact extraction & normalization engine",
   "keywords": [
     "design-system",
