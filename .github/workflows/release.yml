@@ -38,3 +38,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          # Publish with npm provenance attestation (uses the id-token: write
+          # permission above). Applies --provenance to every changeset publish.
+          NPM_CONFIG_PROVENANCE: true
