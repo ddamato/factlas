@@ -18,6 +18,7 @@ import { type DiscoverOptions, type SnapshotHeader, discover } from './discover.
 import { extractFile } from './extract/extractFile.js';
 import type { Fact } from './fact.js';
 import { type DesignFactsPlugin, type Diagnostic, pluginVersions } from './plugin/types.js';
+import { toolVersions } from './tools.js';
 
 /** Options for {@link extractRepo}: discovery options plus the plugin set. */
 export interface ExtractRepoOptions extends Omit<DiscoverOptions, 'pluginVersions'> {
@@ -42,6 +43,9 @@ export async function extractRepo(options: ExtractRepoOptions): Promise<ExtractR
   const { plugins, ...discoverOptions } = options;
   const { root, files, header } = await discover({
     ...discoverOptions,
+    // Default the header's tool_versions to factlas's own resolved parser/
+    // normalizer deps; an explicit caller-provided value still wins.
+    toolVersions: discoverOptions.toolVersions ?? toolVersions(),
     pluginVersions: pluginVersions(plugins),
   });
 

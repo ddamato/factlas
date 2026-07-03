@@ -48,6 +48,8 @@ export type {
   SnapshotHeader,
 } from './discover.js';
 
+export { TOOL_PACKAGES, toolVersions } from './tools.js';
+
 // --- Phase 2: parsing, plugin host, extraction -------------------------------
 
 export { babelLoc, postcssLoc } from './loc.js';
