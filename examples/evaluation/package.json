@@ -1,0 +1,48 @@
+{
+  "name": "@factlas/example-evaluation",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Runnable reference: how to evaluate factlas facts (store → allowed-sets → policies → SARIF → gate). Demonstration only; not part of the shipped project.",
+  "type": "module",
+  "bin": {
+    "factlas-eval": "./dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "policies",
+    "reference"
+  ],
+  "license": "MIT",
+  "author": "Donnie D'Amato",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@factlas/core": "^0.2.0",
+    "sql.js": "^1.10.0"
+  },
+  "devDependencies": {
+    "@factlas/plugin-css": "^2.0.0",
+    "@factlas/plugin-inline-style": "^2.0.0",
+    "@factlas/plugin-jsx": "^2.0.0",
+    "@factlas/plugin-styled": "^2.0.0",
+    "@factlas/plugin-tailwind": "^2.0.0",
+    "@types/node": "^22.10.2",
+    "@types/sarif": "^2.1.7",
+    "@types/sql.js": "^1.4.9",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

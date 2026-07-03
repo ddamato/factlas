@@ -9,6 +9,12 @@ This document records the **recommended** downstream architecture so a consuming
 team can build (or buy) evaluation on top of the facts. None of it is a
 responsibility of this project; it exists so the seams we expose stay useful.
 
+> 🏃 **A runnable reference of everything below lives in
+> [`examples/evaluation`](../examples/evaluation)** — store (SQLite), normalized
+> allowed-sets, SQL policy bundle, SARIF, and a CI gate, evaluated against
+> `examples/app` with off-the-shelf tech. Read on for the rationale; open that
+> package to see it work.
+
 > Source of truth for the original full-system design is [ADR-0001](../ADR.md)
 > §2.6 and §3 (Phases 5–6). This file summarizes and marks the boundary.
 

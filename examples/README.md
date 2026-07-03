@@ -8,6 +8,11 @@ dependencies are installed; imports need not resolve).
 - **`plugins/`** — one focused, annotated showcase per plugin. Each comment
   states the fact(s) that plugin emits for the construct on that line, so the
   files double as living documentation.
+- **`evaluation/`** — a **runnable** reference for what a consumer does *with* the
+  facts: load them into a store, compare against normalized token allowed-sets,
+  run SQL policies, and emit SARIF + a CI gate. Demonstrates
+  [docs/DOWNSTREAM.md](../docs/DOWNSTREAM.md) on the `app/` above. (Out of factlas's
+  scope — shown with off-the-shelf tech.)
 
 Run the CLI against any of them:
 

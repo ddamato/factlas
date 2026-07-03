@@ -1,0 +1,39 @@
+{
+  "name": "example-design-system-bundle",
+  "version": "1.0.0",
+  "description": "A tiny, versioned policy bundle (DOWNSTREAM.md §3). Each rule is parameterized SQL that SELECTs violation rows (zero rows = pass); the columns fact_id, file, line, col, message are the contract the evaluator maps to SARIF. In a real system this bundle is signed and a repo pins the version it is evaluated against.",
+  "rules": [
+    {
+      "id": "color-off-token",
+      "title": "Color is not a design token",
+      "sql": "color-off-token.sql",
+      "level": "error",
+      "certaintyPolicy": "literal-only",
+      "help": "Use a design-system color token instead of a raw value. Unresolved colors are routed to needs-review, never failed here."
+    },
+    {
+      "id": "no-arbitrary-tailwind",
+      "title": "Arbitrary Tailwind value bypasses the scale",
+      "sql": "no-arbitrary-tailwind.sql",
+      "level": "warning",
+      "certaintyPolicy": "not-applicable",
+      "help": "Replace bracketed arbitrary values (e.g. text-[#123456], w-[13px]) with a scale utility."
+    },
+    {
+      "id": "no-inline-style",
+      "title": "Inline style declaration",
+      "sql": "no-inline-style.sql",
+      "level": "warning",
+      "certaintyPolicy": "not-applicable",
+      "help": "Move inline styles into a stylesheet or a token-driven class."
+    },
+    {
+      "id": "needs-review",
+      "title": "Unresolved value needs manual review",
+      "sql": "needs-review.sql",
+      "level": "note",
+      "certaintyPolicy": "dynamic-unknown",
+      "help": "factlas could not resolve this value statically; a human or a gated Tier-2 check should decide. Never silently passed or failed."
+    }
+  ]
+}
