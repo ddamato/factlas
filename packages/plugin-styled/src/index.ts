@@ -105,6 +105,8 @@ function analyzeTagged(
         selector: selectorOf(decl),
         media: mediaOf(decl),
         owner_component: owner,
+        // A styled component defines CSS for a component, not one element instance.
+        element_id: null,
       },
       value: isDynamic
         ? { raw: decl.value, type: 'dynamic', dynamic: true }

@@ -173,12 +173,13 @@
         "subject": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["property", "selector", "media", "owner_component"],
+          "required": ["property", "selector", "media", "owner_component", "element_id"],
           "properties": {
             "property": { "type": "string" },
             "selector": { "type": ["string", "null"] },
             "media": { "type": ["string", "null"] },
-            "owner_component": { "type": ["string", "null"] }
+            "owner_component": { "type": ["string", "null"] },
+            "element_id": { "type": ["string", "null"] }
           }
         },
         "value": { "$ref": "#/$defs/value" }
