@@ -1,5 +1,13 @@
 # @factlas/cli
 
+## 0.0.3
+
+### Patch Changes
+
+- e2a589b: Read the CLI version from `package.json` at runtime so `factlas --version`
+  always matches the published version (previously a hard-coded constant that could
+  drift). Plugins now derive their producer version the same way.
+
 ## 0.0.2
 
 ### Patch Changes
