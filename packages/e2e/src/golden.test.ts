@@ -22,12 +22,13 @@ import {
 } from '@factlas/core';
 import cssPlugin from '@factlas/plugin-css';
 import inlineStyle from '@factlas/plugin-inline-style';
+import jsx from '@factlas/plugin-jsx';
 import styled from '@factlas/plugin-styled';
 import tailwind from '@factlas/plugin-tailwind';
 import { describe, expect, it } from 'vitest';
 
 const FIXTURES = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../fixtures');
-const PLUGINS = [cssPlugin, inlineStyle, styled, tailwind];
+const PLUGINS = [jsx, cssPlugin, inlineStyle, styled, tailwind];
 
 async function run(): Promise<{ header: SnapshotHeader; facts: Fact[] }> {
   const { files, header } = await discover({
@@ -80,11 +81,23 @@ describe('golden fixture', () => {
     expect(norm(fw)).toBeNull();
   });
 
-  it('covers all four default plugins', async () => {
+  it('covers all five default plugins', async () => {
     const { facts } = await run();
     const sources = new Set(facts.map((f) => f.source));
-    // css (plain-css), inline-style (inline), styled (css-in-js), tailwind.
-    expect(sources).toEqual(new Set(['plain-css', 'inline', 'css-in-js', 'tailwind']));
+    // jsx (babel-jsx), css (plain-css), inline (inline), styled (css-in-js), tailwind.
+    expect(sources).toEqual(new Set(['babel-jsx', 'plain-css', 'inline', 'css-in-js', 'tailwind']));
+
+    // jsx: an import fact and an element with a linked prop/attribute.
+    const imports = facts.filter((f) => f.kind === 'import');
+    expect(imports.length).toBeGreaterThan(0);
+    const element = facts.find((f) => f.kind === 'jsx.element');
+    expect(element).toBeTruthy();
+    const linked = facts.find(
+      (f) =>
+        (f.kind === 'jsx.prop' || f.kind === 'jsx.attribute') &&
+        f.subject.element_id === element?.fact_id,
+    );
+    expect(linked).toBeTruthy();
 
     // Tailwind arbitrary value is flagged and typed.
     const arbitrary = facts.find(

@@ -1,0 +1,17 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  color: #fff;
+  background-color: #3366ff;
+  padding: 4px 8px;
+  border: 1px solid #3366FF;
+  border-radius: 8px;
+}
+
+.button:hover {
+  background-color: #2851D6;
+}
+
+.button--danger {
+  background-color: #E00;
+}

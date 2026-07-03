@@ -1,0 +1,32 @@
+/* @factlas/plugin-css — one css.declaration per declaration, typed by value.
+   (source: plain-css; pass { source: 'css-module' } for *.module.css) */
+
+:root {
+  --brand: #3366FF; /* keyword — custom-property value, case preserved */
+}
+
+.card {
+  color: #FFF; /*                 color   → #ffffff  */
+  background-color: rgb(0, 0, 0); /* color → #000000  */
+  border-color: red; /*           color   → #ff0000 (named)   */
+  padding: 4px; /*                length  → 4px       */
+  margin: 0; /*                   number  → 0 (bare)  */
+  z-index: 10; /*                 number  → 10        */
+  opacity: 0.5; /*                number  → 0.5       */
+  background-image: url("bg.png"); /* url  → url(bg.png)  */
+  box-shadow: 0 0 2px #000; /*     shadow             */
+  display: flex; /*               keyword → flex      */
+  color: var(--brand); /*         keyword — var() reference preserved */
+}
+
+/* selector is attached to each declaration */
+.card:hover {
+  color: #2851D6; /* selector: '.card:hover' */
+}
+
+/* media query is attached to each declaration */
+@media (min-width: 768px) {
+  .card {
+    padding: 8px; /* media: '(min-width: 768px)' */
+  }
+}

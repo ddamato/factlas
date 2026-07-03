@@ -1,12 +1,9 @@
 {
-  "name": "@factlas/cli",
+  "name": "@factlas/plugin-jsx",
   "version": "0.0.1",
-  "description": "Factlas CLI: point it at a repo (locally or in CI) and emit a deterministic fact stream",
-  "keywords": ["factlas", "cli", "design-tokens", "static-analysis"],
+  "description": "Factlas plugin: extract import, jsx.element, jsx.prop and jsx.attribute facts from TSX",
+  "keywords": ["factlas", "factlas-plugin", "jsx", "react", "components", "imports"],
   "type": "module",
-  "bin": {
-    "factlas": "./dist/cli.js"
-  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -16,10 +13,11 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": ["dist"],
+  "sideEffects": false,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ddamato/factlas.git",
-    "directory": "packages/cli"
+    "directory": "packages/plugin-jsx"
   },
   "license": "MIT",
   "author": "Donnie D'Amato",
@@ -30,15 +28,12 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
-  "dependencies": {
-    "@factlas/core": "^0.0.1",
-    "@factlas/plugin-css": "^0.0.1",
-    "@factlas/plugin-inline-style": "^0.0.1",
-    "@factlas/plugin-jsx": "^0.0.1",
-    "@factlas/plugin-styled": "^0.0.1",
-    "@factlas/plugin-tailwind": "^0.0.1"
+  "peerDependencies": {
+    "@factlas/core": "^0.0.1"
   },
   "devDependencies": {
+    "@babel/types": "^7.26.10",
+    "@factlas/core": "^0.0.1",
     "@types/node": "^22.10.2",
     "tsup": "^8.3.5",
     "typescript": "^5.7.2",
