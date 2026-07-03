@@ -3,6 +3,11 @@ dist/
 coverage/
 .turbo/
 .factlas/
+.evalite/
+examples/evaluation/.eval/
+facts.json
+*.db
+*.sarif
 *.log
 .DS_Store
 .env
