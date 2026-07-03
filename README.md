@@ -88,3 +88,9 @@ npm run lint        # biome
 
 Monorepo: npm workspaces + Turborepo, ESM-only, TypeScript, released with
 Changesets under the `@factlas` scope.
+
+## Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for the invariants, workflow, and PR
+checklist. Changing the fact shape or a normalizer is a **migration** — follow
+[docs/SCHEMA_MIGRATION.md](./docs/SCHEMA_MIGRATION.md).
