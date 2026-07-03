@@ -1,5 +1,12 @@
 # @factlas/plugin-tailwind
 
+## 2.0.0
+
+### Patch Changes
+
+- Updated dependencies [9fe29c7]
+  - @factlas/core@0.2.0
+
 ## 1.0.0
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@factlas/plugin-tailwind",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Factlas plugin: extract css.class facts from Tailwind className usage (cn/clsx/cva, arbitrary values)",
   "keywords": [
     "factlas",
@@ -41,7 +41,7 @@
     "test": "vitest run"
   },
   "peerDependencies": {
-    "@factlas/core": "^0.1.0",
+    "@factlas/core": "^0.2.0",
     "tailwindcss": ">=3"
   },
   "peerDependenciesMeta": {
@@ -51,7 +51,7 @@
   },
   "devDependencies": {
     "@babel/types": "^7.26.10",
-    "@factlas/core": "^0.1.0",
+    "@factlas/core": "^0.2.0",
     "@types/node": "^22.10.2",
     "tsup": "^8.3.5",
     "typescript": "^5.7.2",
