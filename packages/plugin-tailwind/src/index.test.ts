@@ -46,6 +46,15 @@ describe('tailwindPlugin', () => {
     expect(facts.every((f) => f.certainty === 'literal')).toBe(true);
   });
 
+  it('links className tokens to their element via element_id, null for cva', () => {
+    const onElement = classFacts('export const B = () => <div className="bg-red-500" />;');
+    expect(onElement[0]?.kind === 'css.class' && onElement[0].subject.element_id).toMatch(
+      /^[0-9a-f]{64}$/,
+    );
+    const fromCva = classFacts('const v = cva("base", {});');
+    expect(fromCva[0]?.kind === 'css.class' && fromCva[0].subject.element_id).toBeNull();
+  });
+
   it('flags arbitrary values with a typed value', () => {
     const facts = classFacts('export const B = () => <div className="text-[#123456]" />;');
     expect(facts).toHaveLength(1);

@@ -396,8 +396,8 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
       },
     },
     {
-      "certainty": "static-union",
-      "fact_id": "1d2cc0ecc53d3d78a2c6cb4118a5c49cf7503ac02fe756d0414c1d0cc6e3cd15",
+      "certainty": "literal",
+      "fact_id": "062467e76ed9c89bc38578622b094878d2781e301dc2619c746e04346ed3e712",
       "file": "Card.tsx",
       "kind": "css.class",
       "loc": {
@@ -409,20 +409,20 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
       "schema_v": "0.1.0",
       "source": "tailwind",
       "subject": {
-        "element_id": null,
-        "is_arbitrary": false,
-        "token": "bg-red-500",
-        "utility": "bg",
+        "element_id": "3e4674f1eeb39f65013da75fd6ab9cb834b8eca9969f365c7b301e5ebc87952f",
+        "is_arbitrary": true,
+        "token": "text-[#123456]",
+        "utility": "text",
       },
       "value": {
-        "norm": "bg-red-500",
-        "raw": "bg-red-500",
-        "type": "keyword",
+        "norm": "#123456",
+        "raw": "#123456",
+        "type": "color",
       },
     },
     {
       "certainty": "static-union",
-      "fact_id": "8c9b830945c2e143bc292fbaa3b95ada6e47240543f05ee966108a134b7d3c4f",
+      "fact_id": "43d5df314a8a5bec656f08ee84a877d942fd221adff93d265a23bbac7c261e71",
       "file": "Card.tsx",
       "kind": "css.class",
       "loc": {
@@ -434,7 +434,7 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
       "schema_v": "0.1.0",
       "source": "tailwind",
       "subject": {
-        "element_id": null,
+        "element_id": "3e4674f1eeb39f65013da75fd6ab9cb834b8eca9969f365c7b301e5ebc87952f",
         "is_arbitrary": false,
         "token": "bg-gray-100",
         "utility": "bg",
@@ -447,7 +447,7 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
     },
     {
       "certainty": "literal",
-      "fact_id": "caf3f4265a2bd941d15e46a051238981603e74269aedb0b66eacf701e7d16244",
+      "fact_id": "60f17d0f5cc9287f486b7cf6014cb5d342adb0ce94b9c2fa8e3ecc1dfedf622e",
       "file": "Card.tsx",
       "kind": "css.class",
       "loc": {
@@ -459,7 +459,7 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
       "schema_v": "0.1.0",
       "source": "tailwind",
       "subject": {
-        "element_id": null,
+        "element_id": "3e4674f1eeb39f65013da75fd6ab9cb834b8eca9969f365c7b301e5ebc87952f",
         "is_arbitrary": false,
         "token": "rounded-md",
         "utility": "rounded",
@@ -471,8 +471,8 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
       },
     },
     {
-      "certainty": "literal",
-      "fact_id": "fd3169a780d1a032ad97dcb14b0255870e1dd9ba83b36b64b5b857246429c16b",
+      "certainty": "static-union",
+      "fact_id": "ca54b206e8793b17954a162892a2306eb7c9d1b71cbf6f070943ef11863ae345",
       "file": "Card.tsx",
       "kind": "css.class",
       "loc": {
@@ -484,15 +484,15 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
       "schema_v": "0.1.0",
       "source": "tailwind",
       "subject": {
-        "element_id": null,
-        "is_arbitrary": true,
-        "token": "text-[#123456]",
-        "utility": "text",
+        "element_id": "3e4674f1eeb39f65013da75fd6ab9cb834b8eca9969f365c7b301e5ebc87952f",
+        "is_arbitrary": false,
+        "token": "bg-red-500",
+        "utility": "bg",
       },
       "value": {
-        "norm": "#123456",
-        "raw": "#123456",
-        "type": "color",
+        "norm": "bg-red-500",
+        "raw": "bg-red-500",
+        "type": "keyword",
       },
     },
   ],

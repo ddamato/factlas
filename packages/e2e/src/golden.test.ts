@@ -114,6 +114,17 @@ describe('golden fixture', () => {
       (f) => f.kind === 'css.class' && f.subject.token === 'bg-red-500',
     );
     expect(conditional?.certainty).toBe('static-union');
+
+    // Cross-plugin join: a tailwind css.class links to the jsx.element it sits
+    // on (element_id computed by plugin-tailwind resolves to a plugin-jsx fact).
+    const linkedClass = facts.find((f) => f.kind === 'css.class' && f.subject.element_id);
+    expect(linkedClass).toBeTruthy();
+    const classElementId =
+      linkedClass?.kind === 'css.class' ? linkedClass.subject.element_id : null;
+    const ownerElement = facts.find(
+      (f) => f.kind === 'jsx.element' && f.fact_id === classElementId,
+    );
+    expect(ownerElement).toBeTruthy();
   });
 });
 
