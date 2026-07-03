@@ -2,12 +2,7 @@
   "name": "@factlas/cli",
   "version": "0.0.2",
   "description": "Factlas CLI: point it at a repo (locally or in CI) and emit a deterministic fact stream",
-  "keywords": [
-    "factlas",
-    "cli",
-    "design-tokens",
-    "static-analysis"
-  ],
+  "keywords": ["factlas", "cli", "design-tokens", "static-analysis"],
   "type": "module",
   "bin": {
     "factlas": "./dist/cli.js"
@@ -20,9 +15,7 @@
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ddamato/factlas.git",
