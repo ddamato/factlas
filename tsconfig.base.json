@@ -21,6 +21,10 @@
     "sourceMap": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+
+    // TS 6 deprecates `baseUrl` (injected by tsup's DTS build); it still works
+    // through TS 6 and is removed in 7. Silence the 6.0 deprecation error.
+    "ignoreDeprecations": "6.0"
   }
 }
