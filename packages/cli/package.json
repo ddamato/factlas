@@ -34,6 +34,7 @@
     "@factlas/core": "^0.0.1",
     "@factlas/plugin-css": "^0.0.1",
     "@factlas/plugin-inline-style": "^0.0.1",
+    "@factlas/plugin-jsx": "^0.0.1",
     "@factlas/plugin-styled": "^0.0.1",
     "@factlas/plugin-tailwind": "^0.0.1"
   },

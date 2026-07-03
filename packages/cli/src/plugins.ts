@@ -6,11 +6,13 @@
 import type { DesignFactsPlugin } from '@factlas/core';
 import cssPlugin from '@factlas/plugin-css';
 import inlineStylePlugin from '@factlas/plugin-inline-style';
+import jsxPlugin from '@factlas/plugin-jsx';
 import styledPlugin from '@factlas/plugin-styled';
 import tailwindPlugin from '@factlas/plugin-tailwind';
 
-/** css → inline-style → styled → tailwind. */
+/** jsx → css → inline-style → styled → tailwind. */
 export const defaultPlugins: DesignFactsPlugin[] = [
+  jsxPlugin,
   cssPlugin,
   inlineStylePlugin,
   styledPlugin,

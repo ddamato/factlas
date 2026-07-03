@@ -12,6 +12,7 @@
     "@factlas/core": "*",
     "@factlas/plugin-css": "*",
     "@factlas/plugin-inline-style": "*",
+    "@factlas/plugin-jsx": "*",
     "@factlas/plugin-styled": "*",
     "@factlas/plugin-tailwind": "*",
     "@types/node": "^22.10.2",

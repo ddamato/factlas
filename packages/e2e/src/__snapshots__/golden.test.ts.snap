@@ -2,8 +2,59 @@
 
 exports[`golden fixture > produces a byte-stable fact stream (checked-in snapshot) 1`] = `
 {
-  "cache_key": "22cc0b0ce054d5af5e24c5f70db1a86071a1d1a7ea30882e6ec99df9c103c844",
+  "cache_key": "b5cd8da888a3ce8170aafc0a0f0b8301e63c6feb2aebf910ef2deee19efa7a81",
   "facts": [
+    {
+      "certainty": "literal",
+      "fact_id": "df834d9a677d47155a9e9bd7147a47af3951db8fc935dcbba8532d49d68f5766",
+      "file": "Badge.tsx",
+      "kind": "jsx.element",
+      "loc": {
+        "col": 4,
+        "endCol": 5,
+        "endLine": 12,
+        "line": 5,
+      },
+      "producer_v": "@factlas/plugin-jsx@0.0.1",
+      "schema_v": "0.1.0",
+      "source": "babel-jsx",
+      "subject": {
+        "imported_from": null,
+        "is_dom": true,
+        "name": "span",
+      },
+    },
+    {
+      "certainty": "dynamic",
+      "diagnostic": "unsupported-node:ObjectExpression",
+      "fact_id": "3f8862f71f64316b8146b693b4f96a77a28422ef205bce0d8e78a0e9ae5bc460",
+      "file": "Badge.tsx",
+      "kind": "jsx.attribute",
+      "loc": {
+        "col": 6,
+        "endCol": 8,
+        "endLine": 11,
+        "line": 6,
+      },
+      "producer_v": "@factlas/plugin-jsx@0.0.1",
+      "schema_v": "0.1.0",
+      "source": "babel-jsx",
+      "subject": {
+        "attribute": "style",
+        "element_id": "df834d9a677d47155a9e9bd7147a47af3951db8fc935dcbba8532d49d68f5766",
+        "owner": "span",
+      },
+      "value": {
+        "norm": null,
+        "raw": "{
+        color: ACCENT,
+        backgroundColor: '#eee',
+        padding: '2px',
+        fontWeight: active ? 'bold' : 'normal',
+      }",
+        "type": "dynamic",
+      },
+    },
     {
       "certainty": "literal",
       "fact_id": "504fa5c900216cb32eeb76d66ecb1f000767e19c2842732c5359101e710adfcb",
@@ -240,6 +291,31 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
     },
     {
       "certainty": "literal",
+      "fact_id": "49f7836cf2ae61539c1a4c74b9863b997b1bf50fe74d83ce21b376bd21edc132",
+      "file": "Card.tsx",
+      "kind": "import",
+      "loc": {
+        "col": 7,
+        "endCol": 13,
+        "endLine": 1,
+        "line": 1,
+      },
+      "producer_v": "@factlas/plugin-jsx@0.0.1",
+      "schema_v": "0.1.0",
+      "source": "babel-jsx",
+      "subject": {
+        "import_kind": "default",
+        "local": "styled",
+        "specifier": "styled-components",
+      },
+      "value": {
+        "norm": "styled-components",
+        "raw": "styled-components",
+        "type": "module",
+      },
+    },
+    {
+      "certainty": "literal",
       "fact_id": "0573908609c3d4b20060dccb40c8706fe2aaea5d17a8145940cd83d503d683f7",
       "file": "Card.tsx",
       "kind": "css.declaration",
@@ -288,6 +364,52 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "norm": "#ffffff",
         "raw": "#FFF",
         "type": "color",
+      },
+    },
+    {
+      "certainty": "literal",
+      "fact_id": "3e4674f1eeb39f65013da75fd6ab9cb834b8eca9969f365c7b301e5ebc87952f",
+      "file": "Card.tsx",
+      "kind": "jsx.element",
+      "loc": {
+        "col": 4,
+        "endCol": 97,
+        "endLine": 10,
+        "line": 10,
+      },
+      "producer_v": "@factlas/plugin-jsx@0.0.1",
+      "schema_v": "0.1.0",
+      "source": "babel-jsx",
+      "subject": {
+        "imported_from": null,
+        "is_dom": false,
+        "name": "Panel",
+      },
+    },
+    {
+      "certainty": "dynamic",
+      "diagnostic": "unsupported-node:CallExpression",
+      "fact_id": "dd5fb185ab14acac4aa6f55b94e8a1ff6bb3ba0b6dda0d557378283124fe6af2",
+      "file": "Card.tsx",
+      "kind": "jsx.prop",
+      "loc": {
+        "col": 11,
+        "endCol": 96,
+        "endLine": 10,
+        "line": 10,
+      },
+      "producer_v": "@factlas/plugin-jsx@0.0.1",
+      "schema_v": "0.1.0",
+      "source": "babel-jsx",
+      "subject": {
+        "component": "Panel",
+        "element_id": "3e4674f1eeb39f65013da75fd6ab9cb834b8eca9969f365c7b301e5ebc87952f",
+        "prop": "className",
+      },
+      "value": {
+        "norm": null,
+        "raw": "cn('rounded-md', active ? 'bg-red-500' : 'bg-gray-100', 'text-[#123456]')",
+        "type": "dynamic",
       },
     },
     {
@@ -401,6 +523,7 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
   "plugin_versions": {
     "@factlas/plugin-css": "0.0.1",
     "@factlas/plugin-inline-style": "0.0.1",
+    "@factlas/plugin-jsx": "0.0.1",
     "@factlas/plugin-styled": "0.0.1",
     "@factlas/plugin-tailwind": "0.0.1",
   },
