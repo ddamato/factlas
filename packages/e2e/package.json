@@ -1,0 +1,21 @@
+{
+  "name": "@factlas/e2e",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Golden-fixture determinism tests over the default plugins (not published)",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@factlas/core": "*",
+    "@factlas/plugin-css": "*",
+    "@factlas/plugin-inline-style": "*",
+    "@factlas/plugin-styled": "*",
+    "@factlas/plugin-tailwind": "*",
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "name": "@factlas/cli",
+  "version": "0.0.1",
+  "description": "Factlas CLI: point it at a repo (locally or in CI) and emit a deterministic fact stream",
+  "keywords": ["factlas", "cli", "design-tokens", "static-analysis"],
+  "type": "module",
+  "bin": {
+    "factlas": "./dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": ["dist"],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ddamato/factlas.git",
+    "directory": "packages/cli"
+  },
+  "license": "MIT",
+  "author": "Donnie D'Amato",
+  "publishConfig": { "access": "public" },
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@factlas/core": "^0.0.1",
+    "@factlas/plugin-css": "^0.0.1",
+    "@factlas/plugin-inline-style": "^0.0.1",
+    "@factlas/plugin-styled": "^0.0.1",
+    "@factlas/plugin-tailwind": "^0.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}
