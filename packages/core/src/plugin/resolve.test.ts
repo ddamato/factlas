@@ -104,4 +104,85 @@ describe('resolveExpression', () => {
       reason: 'unbound-identifier',
     });
   });
+
+  it('resolves a numeric sign (unary minus/plus)', () => {
+    expect(resolveExpression(initOfX('const x = -4;').node)).toEqual({
+      status: 'literal',
+      value: -4,
+    });
+    expect(resolveExpression(initOfX('const x = +8;').node)).toEqual({
+      status: 'literal',
+      value: 8,
+    });
+  });
+
+  it('marks a non-numeric unary as dynamic', () => {
+    expect(resolveExpression(initOfX('const x = !flag;').node)).toEqual({
+      status: 'dynamic',
+      reason: 'unsupported-unary:!',
+    });
+  });
+
+  describe('member access', () => {
+    it('resolves a static property of an in-file const object to its literal', () => {
+      const { node, scope } = initOfX(
+        "const sizes = { sm: '4px', lg: '8px' };\nconst x = sizes.sm;",
+      );
+      expect(resolveExpression(node, scope)).toEqual({ status: 'literal', value: '4px' });
+    });
+
+    it('resolves a computed string-literal key', () => {
+      const { node, scope } = initOfX("const sizes = { sm: '4px' };\nconst x = sizes['sm'];");
+      expect(resolveExpression(node, scope)).toEqual({ status: 'literal', value: '4px' });
+    });
+
+    it('resolves a member of an inline object literal', () => {
+      const { node, scope } = initOfX("const x = ({ a: '1px', b: '2px' }).b;");
+      expect(resolveExpression(node, scope)).toEqual({ status: 'literal', value: '2px' });
+    });
+
+    it('models a dynamic key as the static union of all values', () => {
+      const { node, scope } = initOfX(
+        "const sizes = { sm: '4px', lg: '8px' };\nconst x = sizes[k];",
+      );
+      expect(resolveExpression(node, scope)).toEqual({
+        status: 'static-union',
+        values: ['4px', '8px'],
+      });
+    });
+
+    it('is unknown when a static key is missing', () => {
+      const { node, scope } = initOfX("const sizes = { sm: '4px' };\nconst x = sizes.md;");
+      expect(resolveExpression(node, scope)).toEqual({
+        status: 'unknown',
+        reason: 'member-key-missing',
+      });
+    });
+
+    it('is unknown for a member of an imported object (never crosses modules)', () => {
+      const { node, scope } = initOfX("import tokens from 'tokens';\nconst x = tokens.sm;");
+      expect(resolveExpression(node, scope)).toEqual({
+        status: 'unknown',
+        reason: 'member-object-unresolved',
+      });
+    });
+
+    it('is unknown when the object spreads (keys not enumerable)', () => {
+      const { node, scope } = initOfX(
+        "const base = {};\nconst sizes = { ...base, sm: '4px' };\nconst x = sizes[k];",
+      );
+      expect(resolveExpression(node, scope)).toEqual({
+        status: 'unknown',
+        reason: 'member-object-has-spread',
+      });
+    });
+
+    it('does not resolve non-literal property values (values must be literals)', () => {
+      const { node, scope } = initOfX(
+        "const v = '4px';\nconst sizes = { sm: v };\nconst x = sizes.sm;",
+      );
+      // Reaching the object consumed the single hop; the value identifier can't.
+      expect(resolveExpression(node, scope).status).toBe('unknown');
+    });
+  });
 });

@@ -75,4 +75,40 @@ describe('inlineStylePlugin', () => {
       expect(inline[0].subject.property).toBe('background-color');
     }
   });
+
+  it('treats a bare numeric on a dimensional property as px (React semantics)', () => {
+    const result = facts('export const B = () => <div style={{ width: 10, marginTop: -4 }} />;');
+    expect(result).toHaveLength(2);
+    const byProp = new Map(
+      result.flatMap((f) => (f.kind === 'css.declaration' ? [[f.subject.property, f]] : [])),
+    );
+    expect(byProp.get('width')?.value.type).toBe('length');
+    expect(byProp.get('width')?.value.norm).toBe('10px');
+    expect(byProp.get('margin-top')?.value.norm).toBe('-4px');
+  });
+
+  it('leaves unitless-number properties as plain numbers', () => {
+    const result = facts(
+      'export const B = () => <div style={{ zIndex: 10, lineHeight: 1.5, opacity: 1, flexGrow: 2 }} />;',
+    );
+    const byProp = new Map(
+      result.flatMap((f) => (f.kind === 'css.declaration' ? [[f.subject.property, f]] : [])),
+    );
+    expect(byProp.get('z-index')?.value.type).toBe('number');
+    expect(byProp.get('z-index')?.value.norm).toBe('10');
+    expect(byProp.get('line-height')?.value.norm).toBe('1.5');
+    expect(byProp.get('opacity')?.value.norm).toBe('1');
+    expect(byProp.get('flex-grow')?.value.norm).toBe('2');
+  });
+
+  it('resolves an inline object-token member to a px length', () => {
+    const result = facts(
+      'const space = { sm: 4, md: 8 };\nexport const B = () => <div style={{ padding: space.md }} />;',
+    );
+    expect(result).toHaveLength(1);
+    if (result[0]?.kind === 'css.declaration') {
+      expect(result[0].certainty).toBe('literal');
+      expect(result[0].value.norm).toBe('8px');
+    }
+  });
 });

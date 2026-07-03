@@ -2,9 +2,11 @@
  * Length normalization (ADR §3 Phase 3 step 8).
  *
  * Canonicalizes numeric value + unit: `10.0PX` → `10px`, `.5rem` → `0.5rem`,
- * `-2EM` → `-2em`. A bare `0` becomes `0px` (the common length identity). Units
- * are lowercased; numbers are canonicalized via {@link formatNumber}. Input that
- * is not a length returns `null`.
+ * `-2EM` → `-2em`. A **unitless** number is treated as `px` (`0` → `0px`,
+ * `10` → `10px`), matching how a length reaches this normalizer — either as `0`
+ * or as a React inline numeric, both of which mean pixels. Units are lowercased;
+ * numbers are canonicalized via {@link formatNumber}. Input that is not a length
+ * returns `null`.
  *
  * Part of the {@link NORMALIZER_VERSION} surface.
  */
@@ -20,6 +22,6 @@ export function normalizeLength(raw: string): string | null {
   if (!match) return null;
   const num = formatNumber(match[1] as string);
   const unit = match[2]?.toLowerCase();
-  if (!unit) return num === '0' ? '0px' : num;
+  if (!unit) return `${num}px`;
   return `${num}${unit}`;
 }

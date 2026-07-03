@@ -29,9 +29,9 @@ import {
   babelLoc,
   traverse,
 } from '@factlas/core';
-import { classifyCssValueType } from './classify-value.js';
+import { classifyCssValueType, isUnitlessNumberProperty } from './classify-value.js';
 
-export { classifyCssValueType } from './classify-value.js';
+export { classifyCssValueType, isUnitlessNumberProperty } from './classify-value.js';
 
 const NAME = '@factlas/plugin-inline-style';
 import { readFileSync } from 'node:fs';
@@ -134,7 +134,13 @@ function observeValue(
   switch (resolved.status) {
     case 'literal': {
       const lit = resolved.value;
-      if (typeof lit === 'number') return { value: { raw: String(lit), type: 'number' } };
+      if (typeof lit === 'number') {
+        // React treats a bare number as `px` for dimensional properties
+        // (`width: 10` → `10px`) but leaves the unitless set alone (`zIndex: 10`).
+        // We record the CSS-accurate type; core's length normalizer adds the unit.
+        const type = isUnitlessNumberProperty(property) ? 'number' : 'length';
+        return { value: { raw: String(lit), type } };
+      }
       const s = String(lit);
       return { value: { raw: s, type: classifyCssValueType(property, s) } };
     }

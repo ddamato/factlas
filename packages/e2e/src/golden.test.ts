@@ -82,6 +82,25 @@ describe('golden fixture', () => {
     );
     expect(fw?.certainty).toBe('static-union');
     expect(norm(fw)).toBeNull();
+
+    // Inline numeric on a dimensional property → px length (React semantics).
+    const marginTop = cssDecls.find(
+      (f) => f.kind === 'css.declaration' && f.subject.property === 'margin-top',
+    );
+    expect(marginTop?.kind === 'css.declaration' && marginTop.value.type).toBe('length');
+    expect(norm(marginTop)).toBe('4px');
+
+    // Inline numeric on a unitless property stays a plain number.
+    const zIndex = cssDecls.find(
+      (f) => f.kind === 'css.declaration' && f.subject.property === 'z-index',
+    );
+    expect(zIndex?.kind === 'css.declaration' && zIndex.value.type).toBe('number');
+    expect(norm(zIndex)).toBe('2');
+
+    // Member access into an in-file const object resolves one hop (SPACING.md → 8 → 8px).
+    const gap = cssDecls.find((f) => f.kind === 'css.declaration' && f.subject.property === 'gap');
+    expect(gap?.certainty).toBe('literal');
+    expect(norm(gap)).toBe('8px');
   });
 
   it('covers all five default plugins', async () => {
