@@ -29,15 +29,15 @@
     "eval": "tsup && evalite run"
   },
   "dependencies": {
-    "@factlas/core": "^0.2.0",
+    "@factlas/core": "*",
     "better-sqlite3": "^12.11.1"
   },
   "devDependencies": {
-    "@factlas/plugin-css": "^2.0.0",
-    "@factlas/plugin-inline-style": "^2.0.0",
-    "@factlas/plugin-jsx": "^2.0.0",
-    "@factlas/plugin-styled": "^2.0.0",
-    "@factlas/plugin-tailwind": "^2.0.0",
+    "@factlas/plugin-css": "*",
+    "@factlas/plugin-inline-style": "*",
+    "@factlas/plugin-jsx": "*",
+    "@factlas/plugin-styled": "*",
+    "@factlas/plugin-tailwind": "*",
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^26.1.0",
     "@types/sarif": "^2.1.7",
