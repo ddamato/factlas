@@ -18,15 +18,15 @@ import { readFileSync } from 'node:fs';
 import type { Scope } from '@babel/traverse';
 import type { Expression, ImportDeclaration, JSXAttribute } from '@babel/types';
 import {
+  babelLoc,
+  buildImportMap,
   type DesignFactsPlugin,
   type ImportKind,
   type ImportMap,
-  type PluginContext,
-  type RawObservationValue,
-  babelLoc,
-  buildImportMap,
   jsxElementId,
   jsxElementIdentity,
+  type PluginContext,
+  type RawObservationValue,
   traverse,
 } from '@factlas/core';
 

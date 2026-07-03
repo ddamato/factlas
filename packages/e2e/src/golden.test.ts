@@ -11,13 +11,13 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  type Fact,
-  type SnapshotHeader,
   assembleFacts,
   canonicalStringify,
   discover,
   extractFile,
+  type Fact,
   pluginVersions,
+  type SnapshotHeader,
   sortFacts,
 } from '@factlas/core';
 import cssPlugin from '@factlas/plugin-css';

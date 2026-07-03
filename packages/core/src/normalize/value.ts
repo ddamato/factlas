@@ -11,7 +11,7 @@
 
 import type { ValueType } from '../fact.js';
 import { normalizeColor } from './color.js';
-import { NUMERIC_TOKEN, formatNumber } from './format.js';
+import { formatNumber, NUMERIC_TOKEN } from './format.js';
 import { normalizeKeyword } from './keyword.js';
 import { normalizeLength } from './length.js';
 

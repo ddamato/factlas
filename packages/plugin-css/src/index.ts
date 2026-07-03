@@ -21,6 +21,7 @@ import { classifyCssValueType } from './classify-value.js';
 export { classifyCssValueType } from './classify-value.js';
 
 const NAME = '@factlas/plugin-css';
+
 import { readFileSync } from 'node:fs';
 
 // Producer version is read from this package's own package.json so it can never
