@@ -7,14 +7,17 @@
  * downstream concerns; see docs/DOWNSTREAM.md).
  */
 
+import { readFileSync } from 'node:fs';
 import { stat } from 'node:fs/promises';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
 import { canonicalStringify, extractRepo } from '@factlas/core';
 import { defaultPlugins } from './plugins.js';
 
-/** CLI version (kept in sync with package.json at release). */
-export const VERSION = '0.0.1';
+/** CLI version, read from package.json so it never drifts from the release. */
+export const VERSION: string = JSON.parse(
+  readFileSync(new URL('../package.json', import.meta.url), 'utf8'),
+).version;
 
 /** Injected I/O so `run` is testable without touching real stdio. */
 export interface CliIO {

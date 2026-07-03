@@ -2,7 +2,6 @@
 
 exports[`golden fixture > produces a byte-stable fact stream (checked-in snapshot) 1`] = `
 {
-  "cache_key": "b5cd8da888a3ce8170aafc0a0f0b8301e63c6feb2aebf910ef2deee19efa7a81",
   "facts": [
     {
       "certainty": "literal",
@@ -15,7 +14,6 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 12,
         "line": 5,
       },
-      "producer_v": "@factlas/plugin-jsx@0.0.1",
       "schema_v": "0.1.0",
       "source": "babel-jsx",
       "subject": {
@@ -36,7 +34,6 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 11,
         "line": 6,
       },
-      "producer_v": "@factlas/plugin-jsx@0.0.1",
       "schema_v": "0.1.0",
       "source": "babel-jsx",
       "subject": {
@@ -66,7 +63,6 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 7,
         "line": 7,
       },
-      "producer_v": "@factlas/plugin-inline-style@0.0.1",
       "schema_v": "0.1.0",
       "source": "inline",
       "subject": {
@@ -92,7 +88,6 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 8,
         "line": 8,
       },
-      "producer_v": "@factlas/plugin-inline-style@0.0.1",
       "schema_v": "0.1.0",
       "source": "inline",
       "subject": {
@@ -118,7 +113,6 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 9,
         "line": 9,
       },
-      "producer_v": "@factlas/plugin-inline-style@0.0.1",
       "schema_v": "0.1.0",
       "source": "inline",
       "subject": {
@@ -144,7 +138,6 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 10,
         "line": 10,
       },
-      "producer_v": "@factlas/plugin-inline-style@0.0.1",
       "schema_v": "0.1.0",
       "source": "inline",
       "subject": {
@@ -170,7 +163,6 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 2,
         "line": 2,
       },
-      "producer_v": "@factlas/plugin-css@0.0.1",
       "schema_v": "0.1.0",
       "source": "plain-css",
       "subject": {
@@ -196,7 +188,6 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 3,
         "line": 3,
       },
-      "producer_v": "@factlas/plugin-css@0.0.1",
       "schema_v": "0.1.0",
       "source": "plain-css",
       "subject": {
@@ -222,7 +213,6 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 4,
         "line": 4,
       },
-      "producer_v": "@factlas/plugin-css@0.0.1",
       "schema_v": "0.1.0",
       "source": "plain-css",
       "subject": {
@@ -248,7 +238,6 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 5,
         "line": 5,
       },
-      "producer_v": "@factlas/plugin-css@0.0.1",
       "schema_v": "0.1.0",
       "source": "plain-css",
       "subject": {
@@ -274,7 +263,6 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 10,
         "line": 10,
       },
-      "producer_v": "@factlas/plugin-css@0.0.1",
       "schema_v": "0.1.0",
       "source": "plain-css",
       "subject": {
@@ -300,7 +288,6 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 1,
         "line": 1,
       },
-      "producer_v": "@factlas/plugin-jsx@0.0.1",
       "schema_v": "0.1.0",
       "source": "babel-jsx",
       "subject": {
@@ -325,7 +312,6 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 6,
         "line": 3,
       },
-      "producer_v": "@factlas/plugin-styled@0.0.1",
       "schema_v": "0.1.0",
       "source": "css-in-js",
       "subject": {
@@ -351,7 +337,6 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 6,
         "line": 3,
       },
-      "producer_v": "@factlas/plugin-styled@0.0.1",
       "schema_v": "0.1.0",
       "source": "css-in-js",
       "subject": {
@@ -377,7 +362,6 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 10,
         "line": 10,
       },
-      "producer_v": "@factlas/plugin-jsx@0.0.1",
       "schema_v": "0.1.0",
       "source": "babel-jsx",
       "subject": {
@@ -398,7 +382,6 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 10,
         "line": 10,
       },
-      "producer_v": "@factlas/plugin-jsx@0.0.1",
       "schema_v": "0.1.0",
       "source": "babel-jsx",
       "subject": {
@@ -423,7 +406,6 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 10,
         "line": 10,
       },
-      "producer_v": "@factlas/plugin-tailwind@0.0.1",
       "schema_v": "0.1.0",
       "source": "tailwind",
       "subject": {
@@ -449,7 +431,6 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 10,
         "line": 10,
       },
-      "producer_v": "@factlas/plugin-tailwind@0.0.1",
       "schema_v": "0.1.0",
       "source": "tailwind",
       "subject": {
@@ -475,7 +456,6 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 10,
         "line": 10,
       },
-      "producer_v": "@factlas/plugin-tailwind@0.0.1",
       "schema_v": "0.1.0",
       "source": "tailwind",
       "subject": {
@@ -501,7 +481,6 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
         "endLine": 10,
         "line": 10,
       },
-      "producer_v": "@factlas/plugin-tailwind@0.0.1",
       "schema_v": "0.1.0",
       "source": "tailwind",
       "subject": {
@@ -520,13 +499,6 @@ exports[`golden fixture > produces a byte-stable fact stream (checked-in snapsho
   "file_count": 3,
   "files_digest": "e1e911efeb7d63025fb9e20cf8586575bdf16456e21f0b398f8b4f339a811888",
   "normalizer_v": "0.1.0",
-  "plugin_versions": {
-    "@factlas/plugin-css": "0.0.1",
-    "@factlas/plugin-inline-style": "0.0.1",
-    "@factlas/plugin-jsx": "0.0.1",
-    "@factlas/plugin-styled": "0.0.1",
-    "@factlas/plugin-tailwind": "0.0.1",
-  },
   "schema_v": "0.1.0",
 }
 `;
