@@ -1,0 +1,42 @@
+{
+  "name": "@factlas/plugin-css",
+  "version": "0.0.1",
+  "description": "Factlas plugin: extract css.declaration facts from PostCSS stylesheets / CSS Modules",
+  "keywords": ["factlas", "factlas-plugin", "css", "postcss", "design-tokens"],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": ["dist"],
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ddamato/factlas.git",
+    "directory": "packages/plugin-css"
+  },
+  "license": "MIT",
+  "author": "Donnie D'Amato",
+  "publishConfig": { "access": "public" },
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "peerDependencies": {
+    "@factlas/core": "^0.0.1"
+  },
+  "devDependencies": {
+    "@factlas/core": "^0.0.1",
+    "@types/node": "^22.10.2",
+    "postcss": "8.4.49",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}
