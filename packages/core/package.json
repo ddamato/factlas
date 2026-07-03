@@ -1,6 +1,6 @@
 {
   "name": "@factlas/core",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Deterministic, content-addressed design-system fact extraction & normalization engine",
   "keywords": [
     "design-system",
@@ -20,7 +20,10 @@
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": ["dist", "schema"],
+  "files": [
+    "dist",
+    "schema"
+  ],
   "sideEffects": false,
   "repository": {
     "type": "git",
