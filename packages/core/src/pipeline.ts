@@ -14,6 +14,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { assembleFacts } from './assemble.js';
 import { sortFacts } from './assemble.js';
+import { type FileCache, fileCacheKey, runSignature } from './cache.js';
 import { type DiscoverOptions, type SnapshotHeader, discover } from './discover.js';
 import { extractFile } from './extract/extractFile.js';
 import type { Fact } from './fact.js';
@@ -24,6 +25,12 @@ import { toolVersions } from './tools.js';
 export interface ExtractRepoOptions extends Omit<DiscoverOptions, 'pluginVersions'> {
   /** Plugins to run. Their versions are folded into the snapshot header. */
   plugins: readonly DesignFactsPlugin[];
+  /**
+   * Optional per-file cache. When set, a file whose content hash and the run's
+   * determinism signature both match a prior run reuses its facts instead of
+   * re-parsing. Output is unchanged; only recomputation is skipped.
+   */
+  cache?: FileCache;
 }
 
 /** The complete result of extracting a repository. */
@@ -49,13 +56,25 @@ export async function extractRepo(options: ExtractRepoOptions): Promise<ExtractR
     pluginVersions: pluginVersions(plugins),
   });
 
+  const { cache } = options;
+  const signature = cache ? runSignature(header) : '';
+
   const facts: Fact[] = [];
   const diagnostics: Diagnostic[] = [];
   for (const file of files) {
+    const key = cache ? fileCacheKey(signature, file.path, file.hash) : '';
+    const cached = cache?.get(key);
+    if (cached) {
+      facts.push(...cached.facts);
+      diagnostics.push(...cached.diagnostics);
+      continue;
+    }
     const code = await readFile(path.join(root, file.path), 'utf8');
     const extracted = extractFile({ file: file.path, code, plugins });
+    const fileFacts = assembleFacts(extracted);
+    cache?.set(key, { facts: fileFacts, diagnostics: extracted.diagnostics });
+    facts.push(...fileFacts);
     diagnostics.push(...extracted.diagnostics);
-    facts.push(...assembleFacts(extracted));
   }
 
   return { header, facts: sortFacts(facts), diagnostics };

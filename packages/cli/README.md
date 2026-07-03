@@ -31,9 +31,21 @@ factlas extract [path] [options]
     --pretty           Pretty-print JSON (default: compact canonical JSON)
     --stats            Print a coverage summary (kinds/certainty/sources +
                        unknown-rate) to stderr
+    --no-cache         Disable the incremental cache (.factlas/cache.json);
+                       re-extract every file
 -h, --help             Show help
 -v, --version          Show version
 ```
+
+### Incremental cache
+
+By default the CLI keeps a content-hash cache at `.factlas/cache.json` under the
+scanned directory: a file whose bytes are unchanged (and whose determinism
+signature — schema/normalizer versions, plugin & tool versions, config hashes —
+still matches) reuses its facts instead of being re-parsed. Output is byte-for-byte
+identical either way; only recomputation is skipped. A version or config change
+invalidates the whole cache. Add `.factlas/` to your `.gitignore`, or pass
+`--no-cache` to disable it.
 
 ### Examples
 

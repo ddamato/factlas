@@ -25,6 +25,7 @@ export const DEFAULT_EXCLUDE = [
   '**/build/**',
   '**/coverage/**',
   '**/.git/**',
+  '**/.factlas/**',
 ] as const;
 
 /** A single discovered source file. */
