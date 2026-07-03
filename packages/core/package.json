@@ -1,6 +1,6 @@
 {
   "name": "@factlas/core",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Deterministic, content-addressed design-system fact extraction & normalization engine",
   "keywords": [
     "design-system",
@@ -53,7 +53,6 @@
     "postcss-value-parser": "4.2.0"
   },
   "devDependencies": {
-    "@types/babel__traverse": "7.28.0",
     "@types/culori": "4.0.1",
     "@types/node": "^26.1.0",
     "ajv": "^8.20.0",

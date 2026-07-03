@@ -1,6 +1,6 @@
 {
   "name": "@factlas/cli",
-  "version": "0.0.6",
+  "version": "0.1.0",
   "description": "Factlas CLI: point it at a repo (locally or in CI) and emit a deterministic fact stream",
   "keywords": [
     "factlas",
@@ -42,12 +42,12 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@factlas/core": "^0.2.0",
-    "@factlas/plugin-css": "^2.0.0",
-    "@factlas/plugin-inline-style": "^2.0.0",
-    "@factlas/plugin-jsx": "^2.0.0",
-    "@factlas/plugin-styled": "^2.0.0",
-    "@factlas/plugin-tailwind": "^2.0.0"
+    "@factlas/core": "^0.3.0",
+    "@factlas/plugin-css": "^3.0.0",
+    "@factlas/plugin-inline-style": "^3.0.0",
+    "@factlas/plugin-jsx": "^3.0.0",
+    "@factlas/plugin-styled": "^3.0.0",
+    "@factlas/plugin-tailwind": "^3.0.0"
   },
   "devDependencies": {
     "@types/node": "^26.1.0",

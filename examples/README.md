@@ -8,12 +8,18 @@ dependencies are installed; imports need not resolve).
 - **`plugins/`** — one focused, annotated showcase per plugin. Each comment
   states the fact(s) that plugin emits for the construct on that line, so the
   files double as living documentation.
+- **`evaluation/`** — a **runnable** reference for what a consumer does *with* the
+  facts: compile design-system guidelines into policies, load facts into a SQLite
+  DB, score the policies with [evalite](https://evalite.dev), and emit SARIF + a CI
+  gate. Demonstrates [docs/DOWNSTREAM.md](../docs/DOWNSTREAM.md) on the `app/` above.
+  (Out of factlas's scope — shown with off-the-shelf tech.)
 
-Run the CLI against any of them:
+Run the CLI against any of them (from the repo root; `npx` resolves the
+workspace CLI after `npm run build`, or the published `@factlas/cli` elsewhere):
 
 ```bash
-factlas extract examples/app
-factlas extract examples/plugins/plugin-tailwind
+npx @factlas/cli extract examples/app
+npx @factlas/cli extract examples/plugins/plugin-tailwind
 ```
 
 These directories are excluded from Biome so the intentional variety (mixed-case

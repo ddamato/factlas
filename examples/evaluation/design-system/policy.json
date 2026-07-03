@@ -1,0 +1,47 @@
+{
+  "name": "acme-design-system",
+  "version": "1.0.0",
+  "description": "The machine-checkable form of guidelines.md — one policy per guideline section, kept right next to it so you can see how they relate. Each policy's `sql` selects violation rows (SELECT * ... WHERE ...; zero rows = pass); `message` is a template whose {placeholders} are filled from the matched row's columns. How the prose becomes SQL (hand-authored or LLM-compiled behind a deterministic gate) is DOWNSTREAM.md §5; this file is the compiled result.",
+  "policies": [
+    {
+      "id": "color-off-token",
+      "guideline": "guidelines.md#color--use-color-tokens",
+      "level": "error",
+      "sql": "SELECT * FROM css_declaration WHERE value_type = 'color' AND certainty = 'literal' AND norm NOT IN (SELECT norm FROM ref_allowed_colors)",
+      "message": "Color {norm} on \"{property}\" is not a design token",
+      "help": "Use a design-system color token. Unresolved colors are routed to needs-review, never failed here."
+    },
+    {
+      "id": "spacing-off-scale",
+      "guideline": "guidelines.md#spacing--use-the-spacing-scale",
+      "level": "warning",
+      "sql": "SELECT * FROM css_declaration WHERE value_type = 'length' AND certainty = 'literal' AND norm NOT IN (SELECT norm FROM ref_allowed_lengths)",
+      "message": "Length {norm} on \"{property}\" is not on the spacing scale",
+      "help": "Use a spacing or radius token (space.*, radius.*) instead of a raw pixel value."
+    },
+    {
+      "id": "no-arbitrary-tailwind",
+      "guideline": "guidelines.md#utilities--no-arbitrary-tailwind-values",
+      "level": "warning",
+      "sql": "SELECT * FROM css_class WHERE is_arbitrary = 1",
+      "message": "Arbitrary Tailwind class \"{token}\" bypasses the token scale",
+      "help": "Replace bracketed arbitrary values (e.g. text-[#123456], w-[13px]) with a scale utility."
+    },
+    {
+      "id": "no-inline-style",
+      "guideline": "guidelines.md#styling--no-inline-styles",
+      "level": "warning",
+      "sql": "SELECT * FROM css_declaration WHERE source = 'inline'",
+      "message": "Inline style sets \"{property}\"; prefer a class or token",
+      "help": "Move inline styles into a stylesheet or a token-driven class."
+    },
+    {
+      "id": "needs-review",
+      "guideline": "guidelines.md#verification--unresolved-values-get-reviewed",
+      "level": "note",
+      "sql": "SELECT * FROM css_declaration WHERE certainty IN ('dynamic', 'unknown')",
+      "message": "Unresolved {value_type} on \"{property}\" ({certainty}: {diagnostic}) needs review",
+      "help": "factlas could not resolve this value statically; a human or a gated Tier-2 check should decide. Never silently passed or failed."
+    }
+  ]
+}
