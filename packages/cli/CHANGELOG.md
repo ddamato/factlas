@@ -1,5 +1,17 @@
 # @factlas/cli
 
+## 0.0.6
+
+### Patch Changes
+
+- Updated dependencies [9fe29c7]
+  - @factlas/core@0.2.0
+  - @factlas/plugin-inline-style@2.0.0
+  - @factlas/plugin-css@2.0.0
+  - @factlas/plugin-styled@2.0.0
+  - @factlas/plugin-jsx@2.0.0
+  - @factlas/plugin-tailwind@2.0.0
+
 ## 0.0.5
 
 ### Patch Changes
