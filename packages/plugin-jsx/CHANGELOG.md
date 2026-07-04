@@ -1,5 +1,12 @@
 # @factlas/plugin-jsx
 
+## 4.0.0
+
+### Patch Changes
+
+- Updated dependencies [d486b66]
+  - @factlas/core@0.4.0
+
 ## 3.0.0
 
 ### Patch Changes
