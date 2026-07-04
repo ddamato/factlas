@@ -4,8 +4,9 @@
  * not part of the shipped factlas project and not published.
  *
  * Flow: design-system guidelines -> compiled policy set; facts -> SQLite DB ->
- * normalized allowed-sets -> policies (SQL) -> violations -> evalite scores +
- * SARIF + a pass/fail gate.
+ * policies (SQL predicates over facts) -> violations -> evalite scores + SARIF +
+ * a pass/fail gate. Facts are compared directly to policies; there is no
+ * reference/allowed-set layer in between.
  */
 
 export type { BuildDatabaseOptions } from './database.js';
@@ -14,7 +15,6 @@ export type { EvalResult, EvaluateOptions, Violation } from './evaluate.js';
 export { evaluate, runPolicies, runPolicy } from './evaluate.js';
 export type { Level, Policy, PolicySet } from './policy.js';
 export { loadPolicies } from './policy.js';
-export { loadAllowedSets } from './reference.js';
 export { formatReport } from './report.js';
 export { toSarif } from './sarif.js';
 export type { FactDb } from './store.js';

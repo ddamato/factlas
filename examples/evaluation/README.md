@@ -18,16 +18,19 @@ scores the policies → SARIF + a CI gate.**
 ```
 design-system/                       the design system's source of truth
   guidelines.md   ─ compiled to ─▶   policy.json   (1 policy per guideline)
-  tokens.json     ─ normalized ──▶   ref_allowed_* tables
-        │                                     │
-factlas extract examples/app                  │
-        │  facts                              │
-        ▼                                     ▼
-   facts.db  ◀───────────  better-sqlite3  (one table per kind + a `facts` view)
+
+factlas extract examples/app
+        │  facts
+        ▼
+   facts.db   ── better-sqlite3: one table per kind + a `facts` view (facts only)
         │
         ├─▶  evalite   score each policy (violations === 0 ? pass : fail) → scorecard
-        └─▶  evaluate  policy SQL → violations → SARIF 2.1.0 + non-zero-exit gate
+        └─▶  evaluate  policy SQL over facts → violations → SARIF 2.1.0 + gate
 ```
+
+**Facts are compared directly to policies.** There is no reference/allowed-set
+layer massaging token data in between — a policy is a self-contained SQL predicate
+over the fact tables (see [What a policy looks like](#what-a-policy-looks-like)).
 
 Everything the design system owns — prose, tokens, and the compiled policies —
 lives one level up in [`../design-system/`](../design-system), a **sibling of
@@ -40,7 +43,6 @@ Each stage maps to a section of `DOWNSTREAM.md`:
 | Stage | File(s) | §|
 |---|---|---|
 | Store | [`src/store.ts`](./src/store.ts), [`src/database.ts`](./src/database.ts) — `better-sqlite3` | §1 |
-| Allowed-sets | [`src/reference.ts`](./src/reference.ts) + [`../design-system/tokens.json`](../design-system/tokens.json) | §2 |
 | Policies | [`../design-system/policy.json`](../design-system/policy.json), compiled from [`guidelines.md`](../design-system/guidelines.md) | §3, §5 |
 | Scoring | [`src/policy.eval.ts`](./src/policy.eval.ts) — evalite | §4 |
 | Report & gate | [`src/evaluate.ts`](./src/evaluate.ts), [`src/sarif.ts`](./src/sarif.ts) | §4 |
@@ -51,8 +53,10 @@ Everything the design system owns lives in [`../design-system/`](../design-syste
 
 - [`guidelines.md`](../design-system/guidelines.md) — the human rules ("use color
   tokens", "no arbitrary Tailwind values", …).
-- [`tokens.json`](../design-system/tokens.json) — the allowed tokens (DTCG format);
-  [`tokens.ts`](../design-system/tokens.ts) is the binding `app/` imports.
+- [`tokens.json`](../design-system/tokens.json) — the token definitions (DTCG format);
+  [`tokens.ts`](../design-system/tokens.ts) is the binding `app/` imports. **The
+  evaluation never reads these** — it only inspects app facts; the tokens are here
+  because the app references them, not as data the checker consumes.
 - [`policy.json`](../design-system/policy.json) — the **machine-checkable form** of
   the guidelines, one policy per section, each citing the guideline it enforces
   (`guideline`). Sits next to the prose so you can see how they relate.
@@ -64,8 +68,8 @@ deterministic validation gate — is the authoring-time concern in
 
 | Policy | Guideline | Severity |
 |---|---|---|
-| `color-off-token` | color → use color tokens | **error** |
-| `spacing-off-scale` | spacing → use the scale | warning |
+| `hardcoded-color` | color → use color tokens | **error** |
+| `hardcoded-spacing` | spacing → use the scale | warning |
 | `no-arbitrary-tailwind` | utilities → no arbitrary values | warning |
 | `no-inline-style` | styling → no inline styles | warning |
 | `needs-review` | verification → unresolved gets reviewed | note |
@@ -78,19 +82,22 @@ matched row's columns. No separate query files:
 
 ```json
 {
-  "id": "color-off-token",
+  "id": "hardcoded-color",
   "guideline": "guidelines.md#color--use-color-tokens",
   "level": "error",
-  "sql": "SELECT * FROM css_declaration WHERE value_type = 'color' AND certainty = 'literal' AND norm NOT IN (SELECT norm FROM ref_allowed_colors)",
-  "message": "Color {norm} on \"{property}\" is not a design token"
+  "sql": "SELECT * FROM css_declaration WHERE value_type = 'color' AND certainty = 'literal'",
+  "message": "Hardcoded color {norm} on \"{property}\" — reference a color token instead"
 }
 ```
 
 The evaluator runs the `sql`, gets each matched row as an object keyed by column,
 and renders `message` against it (`{norm}` → the row's `norm`, and so on). Zero rows
-= pass. (SQLite's `json_each`/`json_extract` could also reference JSON embedded in a
-policy; here the allowed-sets stay as normalized token tables so a fact and a token
-compare on identical footing.)
+= pass. The predicate is **entirely over the fact** — a color that factlas resolved
+to a literal is the violation, because a conformant value is a *token reference*
+(`var(--brand)`), which factlas records as a keyword fact, not a literal color. No
+allowed-set, no lookup table: facts compared straight to policy. (If a policy did
+need reference data — say a list of approved packages — it would carry it inline,
+e.g. via SQLite's `json_each`, rather than a separate ETL step.)
 
 ## Run it
 
@@ -114,12 +121,12 @@ Step 2 prints:
 
 ```
 factlas evaluation — acme-design-system@1.0.0
-  [x] error   color-off-token          9
-  [!] warning spacing-off-scale        3
+  [x] error   hardcoded-color          14
+  [!] warning hardcoded-spacing        7
   [!] warning no-arbitrary-tailwind    2
   [!] warning no-inline-style          7
   [i] note    needs-review             5
-  26 findings (9 error, 12 warning, 5 note) -> FAIL
+  35 findings (14 error, 16 warning, 5 note) -> FAIL
 ```
 
 Step 3 (evalite) renders a scorecard — one row per enforceable policy, its
@@ -129,8 +136,8 @@ violation count, and its pass/fail score:
 ╔════════════════════════╤════════╤═══════╗
 ║ Input                  │ Output │ Score ║
 ╟────────────────────────┼────────┼───────╢
-║ color-off-token        │ 9      │ 0%    ║
-║ spacing-off-scale      │ 3      │ 0%    ║
+║ hardcoded-color        │ 14     │ 0%    ║
+║ hardcoded-spacing      │ 7      │ 0%    ║
 ║ no-arbitrary-tailwind  │ 2      │ 0%    ║
 ║ no-inline-style        │ 7      │ 0%    ║
 ╚════════════════════════╧════════╧═══════╝
@@ -141,17 +148,18 @@ violation count, and its pass/fail score:
 ```ts
 import { buildDatabase, loadPolicies, runPolicies, toSarif } from '@factlas/example-evaluation';
 
-const db = await buildDatabase(facts, { file: 'facts.db' }); // facts: Fact[]
+const db = buildDatabase(facts, { file: 'facts.db' }); // facts: Fact[]
 const result = runPolicies(db, await loadPolicies());
 const sarifLog = toSarif(result);
 ```
 
 ## Two points this makes concrete
 
-- **Normalizer parity.** `color-off-token` only works because the token allowed-set
-  is normalized with the **same `@factlas/core` normalizers** the facts were —
-  `#3366FF` (token) and `#3366ff` (fact) compare equal. Reimplement the normalizer
-  downstream and every check silently drifts. See [`src/reference.ts`](./src/reference.ts).
+- **Facts compared straight to policy.** A policy is a self-contained SQL predicate
+  over the fact tables — no reference DB, no allowed-set, nothing massaging data in
+  between. `hardcoded-color` flags a *literal* color outright; a conformant value is
+  a token reference, which factlas already records as a keyword/dynamic fact rather
+  than a literal color, so it simply doesn't match. The tokens never enter the check.
 - **Certainty routing.** Value policies restrict to `certainty = 'literal'`; a value
   factlas couldn't resolve (`dynamic`/`unknown`) is never silently passed or failed
   — it surfaces in `needs-review` (a SARIF `note`) for a human or a gated Tier-2 check.

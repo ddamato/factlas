@@ -1,23 +1,23 @@
 {
   "name": "acme-design-system",
   "version": "1.0.0",
-  "description": "The machine-checkable form of guidelines.md — one policy per guideline section, kept right next to it so you can see how they relate. Each policy's `sql` selects violation rows (SELECT * ... WHERE ...; zero rows = pass); `message` is a template whose {placeholders} are filled from the matched row's columns. How the prose becomes SQL (hand-authored or LLM-compiled behind a deterministic gate) is DOWNSTREAM.md §5; this file is the compiled result.",
+  "description": "The machine-checkable form of guidelines.md — one policy per guideline section, kept right next to it so you can see how they relate. Each policy's `sql` selects violation rows directly from the fact tables (SELECT * ... WHERE ...; zero rows = pass) — facts are compared to policies with no reference/allowed-set layer in between. `message` is a template whose {placeholders} are filled from the matched row's columns. How the prose becomes SQL (hand-authored or LLM-compiled behind a deterministic gate) is DOWNSTREAM.md §5; this file is the compiled result.",
   "policies": [
     {
-      "id": "color-off-token",
+      "id": "hardcoded-color",
       "guideline": "guidelines.md#color--use-color-tokens",
       "level": "error",
-      "sql": "SELECT * FROM css_declaration WHERE value_type = 'color' AND certainty = 'literal' AND norm NOT IN (SELECT norm FROM ref_allowed_colors)",
-      "message": "Color {norm} on \"{property}\" is not a design token",
-      "help": "Use a design-system color token. Unresolved colors are routed to needs-review, never failed here."
+      "sql": "SELECT * FROM css_declaration WHERE value_type = 'color' AND certainty = 'literal'",
+      "message": "Hardcoded color {norm} on \"{property}\" — reference a color token instead",
+      "help": "A literal color is the violation: a conformant value is a token reference (var(--color-*), a token constant), which factlas records as a keyword/dynamic fact, not a literal color. Unresolved values are routed to needs-review, never failed here."
     },
     {
-      "id": "spacing-off-scale",
+      "id": "hardcoded-spacing",
       "guideline": "guidelines.md#spacing--use-the-spacing-scale",
       "level": "warning",
-      "sql": "SELECT * FROM css_declaration WHERE value_type = 'length' AND certainty = 'literal' AND norm NOT IN (SELECT norm FROM ref_allowed_lengths)",
-      "message": "Length {norm} on \"{property}\" is not on the spacing scale",
-      "help": "Use a spacing or radius token (space.*, radius.*) instead of a raw pixel value."
+      "sql": "SELECT * FROM css_declaration WHERE value_type = 'length' AND certainty = 'literal'",
+      "message": "Hardcoded length {norm} on \"{property}\" — use a spacing/radius token instead",
+      "help": "A literal length is the violation: reference a spacing or radius token (var(--space-*), var(--radius-*)) rather than a raw pixel value."
     },
     {
       "id": "no-arbitrary-tailwind",

@@ -70,7 +70,7 @@ export async function evaluate(
   facts: readonly Fact[],
   options: EvaluateOptions = {},
 ): Promise<EvalResult> {
-  const db = await buildDatabase(facts);
+  const db = buildDatabase(facts);
   try {
     return runPolicies(db, await loadPolicies(options.policyUrl));
   } finally {

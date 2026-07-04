@@ -41,7 +41,7 @@ const { facts } = await extractRepo({
   plugins: [jsx, cssPlugin, inlineStyle, styled, tailwind],
 });
 mkdirSync(path.dirname(DB_FILE), { recursive: true });
-const db = await buildDatabase(facts, { file: DB_FILE });
+const db = buildDatabase(facts, { file: DB_FILE });
 const policySet = await loadPolicies();
 const policiesById = new Map(policySet.policies.map((policy) => [policy.id, policy]));
 

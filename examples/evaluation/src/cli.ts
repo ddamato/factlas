@@ -71,7 +71,7 @@ async function main(argv: string[]): Promise<number> {
     return 2;
   }
 
-  const db = await buildDatabase(facts, values.db ? { file: values.db } : {});
+  const db = buildDatabase(facts, values.db ? { file: values.db } : {});
   const result = runPolicies(db, await loadPolicies());
   db.close();
   if (values.db) process.stderr.write(`factlas-eval: fact database written to ${values.db}\n`);

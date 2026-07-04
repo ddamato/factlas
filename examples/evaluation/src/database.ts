@@ -1,11 +1,11 @@
 /**
- * The "load facts into a store" step (DOWNSTREAM.md §1–2) as one call: open a
- * database (in memory or on disk), load the fact stream, and attach the
- * normalized token allowed-sets. The result is a ready-to-query fact DB.
+ * The "load facts into a store" step (DOWNSTREAM.md §1) as one call: open a
+ * database (in memory or on disk) and load the fact stream. The result is a
+ * ready-to-query fact DB — nothing but facts. Policies compare facts to their own
+ * predicates; there is no reference/allowed-set layer massaging data in between.
  */
 
 import type { Fact } from '@factlas/core';
-import { loadAllowedSets } from './reference.js';
 import { type FactDb, loadFacts, openDatabase } from './store.js';
 
 export interface BuildDatabaseOptions {
@@ -13,13 +13,9 @@ export interface BuildDatabaseOptions {
   file?: string;
 }
 
-/** Build a fact database from a fact stream, with allowed-sets loaded. */
-export async function buildDatabase(
-  facts: readonly Fact[],
-  options: BuildDatabaseOptions = {},
-): Promise<FactDb> {
+/** Build a fact database from a fact stream. */
+export function buildDatabase(facts: readonly Fact[], options: BuildDatabaseOptions = {}): FactDb {
   const db = openDatabase(options.file);
   loadFacts(db, facts);
-  await loadAllowedSets(db);
   return db;
 }
