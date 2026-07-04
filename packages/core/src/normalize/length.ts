@@ -1,5 +1,5 @@
 /**
- * Length normalization (ADR §3 Phase 3 step 8).
+ * Length normalization.
  *
  * Canonicalizes numeric value + unit: `10.0PX` → `10px`, `.5rem` → `0.5rem`,
  * `-2EM` → `-2em`. A **unitless** number is treated as `px` (`0` → `0px`,

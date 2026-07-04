@@ -8,8 +8,7 @@ TypeScript/TSX and CSS by static analysis.
 > dispatches to technology plugins, normalizes their raw observations with
 > versioned algorithms, and assigns each fact a content-addressed `fact_id`.
 
-See [ADR-0001](../../ADR.md) for the full design and
-[IMPLEMENTATION_PLAN.md](../../IMPLEMENTATION_PLAN.md) for build status.
+See the [project README's Design section](../../README.md#design) for the full design.
 
 ## Status
 
@@ -66,7 +65,8 @@ const { observations, diagnostics } = extractFile({ file, code, plugins });
 - **Versioned normalizers** (pure, gated by `NORMALIZER_VERSION`): `normalizeColor`
   (culori → canonical hex), `normalizeLength`, `normalizeKeyword`,
   `normalizeProperty` (camelCase/vendor-prefix → kebab), and the `normalizeValue`
-  dispatcher — the single function facts and allowed-sets must share.
+  dispatcher — the one place raw values become canonical, so any downstream
+  comparison reuses it rather than reimplementing it (`#3366FF` = `#3366ff`).
 - **`classifyCertainty`** — the certainty decision tree (`literal | static-union |
   dynamic | unknown`).
 - **`assembleFact` / `assembleFacts`** — turn a raw observation into a finalized,

@@ -1,5 +1,5 @@
 /**
- * The plugin contract (ADR §2.2 / §2.6, Phase 2 step 5).
+ * The plugin contract.
  *
  * Plugins own technology knowledge; core owns normalization and identity. So a
  * plugin's job is to emit **raw observations** — it classifies a value's `type`

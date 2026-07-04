@@ -4,7 +4,7 @@
  * Collects class tokens from `className`/`class` attributes and from class
  * combiners (`cn`, `clsx`, `classnames`, `cva`, `twMerge`, `cx`), including
  * literal tokens pulled out of conditional expressions and objects as
- * `static-union` (ADR §2.5). Each token becomes a `css.class` fact carrying its
+ * `static-union`. Each token becomes a `css.class` fact carrying its
  * utility namespace and whether it uses an arbitrary value; anything unresolved
  * becomes a diagnostic, never a silent drop.
  *

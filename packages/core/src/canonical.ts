@@ -1,5 +1,5 @@
 /**
- * Canonical JSON serialization + hashing — the determinism primitives (ADR §2.4).
+ * Canonical JSON serialization + hashing — the determinism primitives.
  *
  * `canonicalStringify` produces a byte-stable string for a given value: object
  * keys are sorted, `undefined`-valued properties are omitted, and numbers use a

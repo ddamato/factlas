@@ -6,8 +6,8 @@
  * versioned normalizers, canonicalizes the subject (e.g. property names), and
  * assigns the `fact_id`. It enforces the non-negotiable invariants:
  *
- * - A `dynamic`/`unknown` fact has `value.norm === null` and is never compared to
- *   an allowed-set (ADR §2.4 rule 6, §2.5).
+ * - A `dynamic`/`unknown` fact has `value.norm === null` and is never judged as if
+ *   it were a resolved literal.
  * - A value that claims to be literal but cannot be normalized degrades to an
  *   honest `unknown` with a diagnostic reason — never a silent pass or drop.
  * - Every `dynamic`/`unknown` fact carries a diagnostic reason.
@@ -81,7 +81,7 @@ export function assembleFacts(result: ExtractFileResult): Fact[] {
 }
 
 /**
- * Deterministically sort facts for stable output (ADR §2.4 rule 1). Order:
+ * Deterministically sort facts for stable output. Order:
  * file, then position, then kind, then `fact_id` as a total-order tiebreak.
  */
 export function sortFacts(facts: readonly Fact[]): Fact[] {

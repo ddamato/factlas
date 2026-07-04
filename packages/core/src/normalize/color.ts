@@ -1,5 +1,5 @@
 /**
- * Color normalization (ADR §3 Phase 3 step 8, via culori).
+ * Color normalization.
  *
  * Canonicalizes any parseable color to lowercase hex: `#FFF` → `#ffffff`,
  * `#abc` → `#aabbcc`, `rgb(255,0,0)` → `#ff0000`, named colors → hex. Colors

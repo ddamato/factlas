@@ -1,5 +1,5 @@
 /**
- * Keyword normalization (ADR §3 Phase 3 step 8).
+ * Keyword normalization.
  *
  * Lowercases and trims CSS keyword values, then applies an alias table so
  * synonyms collapse (extend {@link KEYWORD_ALIASES} as real aliases surface).

@@ -2,12 +2,13 @@
 
 Thanks for your interest in factlas. This is a **deterministic fact-extraction
 engine**: the highest-value contributions keep it deterministic, static, and
-honest. Please read the [ADR](./ADR.md) for the design rationale before proposing
-anything structural.
+honest. Please read the README's [Design](./README.md#design) section for the
+rationale before proposing anything structural.
 
 ## Non-negotiable invariants
 
-Every change must uphold the guarantees in [ADR §2.4](./ADR.md). In short:
+Every change must uphold the determinism guarantees (see the README's
+[Design](./README.md#design) section). In short:
 
 1. **Deterministic.** Identical inputs produce byte-identical output. Never depend
    on filesystem order, wall-clock time, locale, `Map`/`Set` iteration of unsorted

@@ -4,7 +4,7 @@
  * `extractRepo` ties the fact layer together: discover files (+ snapshot header),
  * extract raw observations with the given plugins, assemble them into normalized
  * facts, and return a single globally-sorted, deterministic stream. Plugins are
- * injected, so core keeps no dependency on any specific plugin (ADR §2.2).
+ * injected, so core keeps no dependency on any specific plugin.
  *
  * This does **not** read into a store, run policies, or gate anything — that is
  * a downstream concern (see docs/DOWNSTREAM.md).

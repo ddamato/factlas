@@ -8,9 +8,9 @@ a breaking change to the fact contract that invalidates every downstream cache a
 requires a full re-extract. This document defines when to bump which, and the
 exact procedure.
 
-Both constants are folded into the snapshot header and the run `cache_key`
-(ADR §2.4), so a bump automatically invalidates caches. `schema_v` is also stamped
-onto every individual fact.
+Both constants are folded into the snapshot header and the run `cache_key`, so a
+bump automatically invalidates caches. `schema_v` is also stamped onto every
+individual fact.
 
 ## The two constants
 

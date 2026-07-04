@@ -1,10 +1,10 @@
 /**
  * @factlas/core — the deterministic fact layer.
  *
- * Public entry point. Phase 1 exposes the Fact contract and the determinism
- * spine (canonical serialization, content-addressed `fact_id`, discovery +
- * snapshot header). Parsing, the plugin host, and normalizers land in later
- * phases (see IMPLEMENTATION_PLAN.md).
+ * Public entry point. Exposes the Fact contract, the determinism spine
+ * (canonical serialization, content-addressed `fact_id`, discovery + snapshot
+ * header), the base parsers and plugin host, the versioned normalizers, and the
+ * `extractRepo` orchestration that runs the whole layer over a repository.
  */
 
 export type { FileCache, FileCacheEntry, PersistentFileCache } from './cache.js';

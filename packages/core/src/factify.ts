@@ -1,5 +1,5 @@
 /**
- * Content-addressed `fact_id` assignment (ADR §2.4 rule 3, Phase 1 step 3).
+ * Content-addressed `fact_id` assignment.
  *
  * The `fact_id` is the sha256 of the canonical form of
  * `{kind, file, loc, subject, norm}` — where `norm` is the *normalized* value

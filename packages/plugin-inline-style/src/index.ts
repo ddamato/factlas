@@ -9,7 +9,7 @@
  * their authored (camelCase) form; core canonicalizes them to kebab-case so an
  * inline `backgroundColor` and a stylesheet `background-color` collapse.
  *
- * This is a bundled default plugin (ADR §2.2 / §3 Phase 4 step 10).
+ * This is a bundled default plugin.
  */
 
 import type { Scope } from '@babel/traverse';

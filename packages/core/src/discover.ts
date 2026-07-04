@@ -1,12 +1,12 @@
 /**
- * Deterministic file discovery + the snapshot header (ADR §2.4, Phase 1 step 2).
+ * Deterministic file discovery + the snapshot header.
  *
  * Discovery is the front of the determinism spine: it finds candidate files with
  * `fast-glob`, hashes each file's bytes with sha256, emits repo-relative POSIX
  * paths, and sorts everything by a locale-independent comparator. It then folds
  * tool/normalizer/plugin versions and config-file hashes into a snapshot header
- * whose `cache_key` changes whenever any determinism input changes (ADR §2.4
- * rule 4) — so a config or version bump invalidates caches.
+ * whose `cache_key` changes whenever any determinism input changes — so a config
+ * or version bump invalidates caches.
  */
 
 import { readFile } from 'node:fs/promises';
@@ -118,7 +118,7 @@ export async function discover(options: DiscoverOptions): Promise<DiscoverResult
     onlyFiles: true,
     dot: false,
     followSymbolicLinks: false,
-    // Never trust glob resolution order (ADR §2.4 rule 1); we sort below.
+    // Never trust glob resolution order; we sort below.
   });
 
   const files: DiscoveredFile[] = [];
