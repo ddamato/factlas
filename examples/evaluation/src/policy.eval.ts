@@ -9,23 +9,26 @@
  * (examples/app) evaluated against the design system (examples/design-system) the
  * app draws its tokens from.
  *
- * Run it:  npm run eval -w @factlas/example-evaluation   (tsup && evalite run)
+ * Run it:  npm run eval -w @factlas/example-evaluation   (evalite run)
  *
- * Imports the package's own public API from its built output (self-reference via
- * the `exports` map), so `npm run eval` builds first.
+ * The helpers are imported straight from this package's source (not its built
+ * output), so the eval reads top-to-bottom and needs no build of its own —
+ * evalite (Vitest) transpiles the TypeScript on the fly.
  */
 
 import { mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { extractRepo } from '@factlas/core';
-import { buildDatabase, loadPolicies, runPolicy } from '@factlas/example-evaluation';
 import cssPlugin from '@factlas/plugin-css';
 import inlineStyle from '@factlas/plugin-inline-style';
 import jsx from '@factlas/plugin-jsx';
 import styled from '@factlas/plugin-styled';
 import tailwind from '@factlas/plugin-tailwind';
 import { createScorer, evalite } from 'evalite';
+import { buildDatabase } from './database.js';
+import { runPolicy } from './evaluate.js';
+import { loadPolicies } from './policy.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const APP = path.resolve(here, '../../app');

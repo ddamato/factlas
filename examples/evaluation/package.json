@@ -24,7 +24,7 @@
   "scripts": {
     "build": "tsup",
     "typecheck": "tsc --noEmit",
-    "eval": "tsup && evalite run"
+    "eval": "evalite run"
   },
   "dependencies": {
     "@factlas/core": "*",

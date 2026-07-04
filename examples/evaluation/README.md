@@ -102,7 +102,7 @@ npx @factlas/cli extract examples/app --out facts.json
 #    inspectable database) and results.sarif; exits non-zero on any error.
 node examples/evaluation/dist/cli.js facts.json --db facts.db --sarif results.sarif
 
-# 3. Score the policies with evalite (builds first, then `evalite run`)
+# 3. Score the policies with evalite (needs @factlas/* built: `npm run build`)
 npm run eval -w @factlas/example-evaluation
 ```
 
