@@ -8,13 +8,14 @@
  * utility namespace and whether it uses an arbitrary value; anything unresolved
  * becomes a diagnostic, never a silent drop.
  *
- * **v1 scope:** this extracts and structures class usage (which powers
- * "no-arbitrary-values" and "known-class" policies). Full resolution of a class
- * to its CSS declarations via the Tailwind engine is planned future work;
- * `tailwindcss` is therefore an optional peer, and `tailwind.config.*` should be
- * passed to `discover({ configFiles })` so a config change invalidates caches.
- *
- * Phase 4 step 12.
+ * **Arbitrary-value resolution:** an arbitrary class (`text-[#123456]`,
+ * `px-[10px]`) additionally emits the `css.declaration` fact(s) it sets, so the
+ * same color/spacing policies that judge CSS also judge Tailwind. This is
+ * engine-free and deterministic (see `resolve.ts`). Resolving *scale* utilities
+ * (`bg-red-500` → `#ef4444`) needs the config-driven Tailwind engine and is out
+ * of scope; those stay `css.class`-only. `tailwindcss` is therefore still an
+ * optional peer, and `tailwind.config.*` should be passed to
+ * `discover({ configFiles })` so a config change invalidates caches.
  */
 
 import { readFileSync } from 'node:fs';
@@ -34,9 +35,12 @@ import {
   type Loc,
   type PluginContext,
   traverse,
+  type ValueType,
 } from '@factlas/core';
-import { classifyArbitrary, parseToken } from './token.js';
+import { resolveProperties } from './resolve.js';
+import { classifyArbitrary, type ParsedToken, parseToken } from './token.js';
 
+export { resolveProperties } from './resolve.js';
 export { classifyArbitrary, parseToken } from './token.js';
 
 const NAME = '@factlas/plugin-tailwind';
@@ -243,6 +247,54 @@ function emitToken(
     },
     value: t.union ? { ...value, certaintyHint: 'static-union' } : value,
   });
+
+  // Additionally resolve an arbitrary value to the CSS declaration(s) it sets, so
+  // the same color/spacing policies that judge CSS also judge Tailwind (v1).
+  if (parsed.is_arbitrary && parsed.arbitrary !== null) {
+    emitResolvedDeclarations(parsed, t.union, loc, elementId, ctx);
+  }
+}
+
+/** Emit the `css.declaration` fact(s) an arbitrary utility resolves to (v1). */
+function emitResolvedDeclarations(
+  parsed: ParsedToken,
+  union: boolean,
+  loc: Loc,
+  elementId: string | null,
+  ctx: PluginContext,
+): void {
+  let raw = parsed.arbitrary as string;
+  let type: ValueType;
+  // Honor Tailwind's explicit type hint (`text-[color:...]`, `w-[length:...]`);
+  // otherwise infer from the value's shape.
+  const hint = /^(color|length|number):/.exec(raw);
+  if (hint) {
+    type = hint[1] as ValueType;
+    raw = raw.slice(hint[0].length);
+  } else {
+    type = classifyArbitrary(raw);
+  }
+  const properties = resolveProperties(parsed.prefix, type);
+  if (properties.length === 0) return;
+
+  // Tailwind uses `_` for spaces inside arbitrary values.
+  const declValue = { raw: raw.replace(/_/g, ' '), type };
+  const value = union ? { ...declValue, certaintyHint: 'static-union' as const } : declValue;
+  for (const property of properties) {
+    ctx.emit({
+      kind: 'css.declaration',
+      loc,
+      source: 'tailwind',
+      subject: {
+        property,
+        selector: null,
+        media: null,
+        owner_component: null,
+        element_id: elementId,
+      },
+      value,
+    });
+  }
 }
 
 function pushTokens(out: CollectedToken[], raw: string, union: boolean): void {

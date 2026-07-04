@@ -62,7 +62,7 @@ const { header, facts, diagnostics } = await extractRepo({
 | [`@factlas/plugin-css`](./packages/plugin-css) | `css.declaration` from PostCSS stylesheets / CSS Modules |
 | [`@factlas/plugin-inline-style`](./packages/plugin-inline-style) | `css.declaration` from JSX `style={{}}` |
 | [`@factlas/plugin-styled`](./packages/plugin-styled) | `css.declaration` from styled-components / emotion |
-| [`@factlas/plugin-tailwind`](./packages/plugin-tailwind) | `css.class` from Tailwind `className` usage |
+| [`@factlas/plugin-tailwind`](./packages/plugin-tailwind) | `css.class` from Tailwind `className` usage; resolves arbitrary values (`text-[#fff]`) to `css.declaration` |
 | [`@factlas/cli`](./packages/cli) | `factlas extract` — run on a repo, emit facts |
 
 ## Design

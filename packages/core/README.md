@@ -93,7 +93,8 @@ facts end-to-end, verified by a golden-fixture byte-stability test:
 - [`@factlas/plugin-styled`](../plugin-styled) — `css.declaration` (source
   `css-in-js`) from styled-components / emotion.
 - [`@factlas/plugin-tailwind`](../plugin-tailwind) — `css.class` from Tailwind
-  `className` usage (`cn`/`clsx`/`cva`, arbitrary values).
+  `className` usage (`cn`/`clsx`/`cva`, arbitrary values); an arbitrary value also
+  resolves to the `css.declaration` it sets (`text-[#fff]` → `color`).
 
 ```ts
 import { extractFile, assembleFacts, sortFacts } from '@factlas/core';

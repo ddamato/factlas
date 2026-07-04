@@ -181,8 +181,8 @@ advisory and not scored), its violation count, and its pass/fail score:
 ╔════════════════════════╤════════╤═══════╗
 ║ Input                  │ Output │ Score ║
 ╟────────────────────────┼────────┼───────╢
-║ hardcoded-color        │ 14     │ 0%    ║
-║ hardcoded-spacing      │ 7      │ 0%    ║
+║ hardcoded-color        │ 15     │ 0%    ║
+║ hardcoded-spacing      │ 8      │ 0%    ║
 ║ no-arbitrary-tailwind  │ 2      │ 0%    ║
 ║ no-inline-style        │ 7      │ 0%    ║
 ╚════════════════════════╧════════╧═══════╝
@@ -242,8 +242,14 @@ NDJSON; this example re-extracts purely to stay a single command.
 - **`evalite: not found` / `tsx: not found`** — dependencies aren't installed. Run
   `npm install` from the **repository root** (step 1).
 
-## Two points this makes concrete
+## Three points this makes concrete
 
+- **One styling model, one set of policies.** factlas converges every styling method
+  into the same facts, so `hardcoded-color` catches a hardcoded color wherever it
+  lives — a CSS declaration, an inline `style`, a styled-component, or an *arbitrary
+  Tailwind value*: `text-[#123456]` resolves to a `color` declaration. That's why
+  `hardcoded-color` is 15 here, not just the CSS ones — and `no-arbitrary-tailwind`
+  independently flags the same class by name, so it's caught from both angles.
 - **Facts compared straight to policy.** A policy is a self-contained SQL predicate
   over the `facts` table — no reference DB, no allowed-set, nothing massaging data in
   between. `hardcoded-color` flags a *literal* color outright; a conformant value is

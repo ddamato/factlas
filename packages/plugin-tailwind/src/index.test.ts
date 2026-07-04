@@ -8,6 +8,12 @@ function classFacts(code: string, file = 'src/Button.tsx') {
   );
 }
 
+function declFacts(code: string, file = 'src/Button.tsx') {
+  return assembleFacts(extractFile({ file, code, plugins: [tailwind] })).filter(
+    (f) => f.kind === 'css.declaration',
+  );
+}
+
 describe('parseToken', () => {
   it('parses utility, variants, and arbitrary values', () => {
     expect(parseToken('bg-red-500')).toMatchObject({ utility: 'bg', is_arbitrary: false });
@@ -116,5 +122,54 @@ describe('tailwindPlugin', () => {
       }),
     ).filter((f) => f.kind === 'css.class');
     expect(facts).toHaveLength(1);
+  });
+});
+
+describe('arbitrary-value resolution → css.declaration', () => {
+  it('resolves an arbitrary color to a color declaration', () => {
+    const [d] = declFacts('export const B = () => <div className="text-[#123456]" />;');
+    expect(d?.kind === 'css.declaration' && d.subject.property).toBe('color');
+    expect(d?.source).toBe('tailwind');
+    expect(d?.value.type).toBe('color');
+    expect(d?.value.norm).toBe('#123456');
+    expect(d?.certainty).toBe('literal');
+  });
+
+  it('disambiguates by value type — text-[13px] is a font-size, not a color', () => {
+    const [d] = declFacts('export const B = () => <div className="text-[13px]" />;');
+    expect(d?.kind === 'css.declaration' && d.subject.property).toBe('font-size');
+    expect(d?.value.type).toBe('length');
+    expect(d?.value.norm).toBe('13px');
+  });
+
+  it('expands a shorthand utility to multiple declarations (px → left + right)', () => {
+    const props = declFacts('export const B = () => <div className="px-[10px]" />;').map((f) =>
+      f.kind === 'css.declaration' ? f.subject.property : '',
+    );
+    expect(new Set(props)).toEqual(new Set(['padding-left', 'padding-right']));
+  });
+
+  it('binds the declaration to the owning element via element_id', () => {
+    const [d] = declFacts('export const B = () => <div className="mt-[6px]" />;');
+    expect(d?.kind === 'css.declaration' && d.subject.element_id).toMatch(/^[0-9a-f]{64}$/);
+  });
+
+  it('leaves non-value utilities (flex) and scale utilities (bg-red-500) unresolved', () => {
+    expect(declFacts('export const B = () => <div className="flex bg-red-500" />;')).toHaveLength(
+      0,
+    );
+  });
+
+  it('marks a conditionally-applied arbitrary value as static-union', () => {
+    const [d] = declFacts(
+      'export const B = ({ x }) => <div className={x ? "text-[#abcdef]" : "flex"} />;',
+    );
+    expect(d?.certainty).toBe('static-union');
+  });
+
+  it('honors an explicit type hint (text-[length:1rem] is a font-size)', () => {
+    const [d] = declFacts('export const B = () => <div className="text-[length:1rem]" />;');
+    expect(d?.kind === 'css.declaration' && d.subject.property).toBe('font-size');
+    expect(d?.value.norm).toBe('1rem');
   });
 });

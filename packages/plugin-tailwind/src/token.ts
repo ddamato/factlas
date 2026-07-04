@@ -14,6 +14,12 @@ export interface ParsedToken {
   token: string;
   /** The utility namespace, e.g. `bg`, `text`, `-mt`, `flex`. */
   utility: string;
+  /**
+   * The utility path with variants and the `[value]` stripped — the resolution
+   * key, e.g. `text`, `min-w`, `border-t`, `mt`. Distinct from `utility`, which
+   * collapses to the first segment; `prefix` keeps compound utilities whole.
+   */
+  prefix: string;
   /** True when the token carries an arbitrary value in brackets. */
   is_arbitrary: boolean;
   /** The arbitrary value (bracket contents), or `null`. */
@@ -27,9 +33,16 @@ export function parseToken(token: string): ParsedToken {
   return {
     token,
     utility: utilityOf(base),
+    prefix: prefixOf(base),
     is_arbitrary: arbitrary !== null,
     arbitrary,
   };
+}
+
+/** The utility path before the arbitrary `[value]`, with negativity and dashes trimmed. */
+function prefixOf(base: string): string {
+  const withoutArbitrary = base.includes('[') ? base.slice(0, base.indexOf('[')) : base;
+  return withoutArbitrary.replace(/-+$/, '').replace(/^-+/, '');
 }
 
 /** Classify an arbitrary value by its shape (property context is unknown). */
