@@ -30,27 +30,30 @@ factlas extract examples/app                  │
 ```
 
 Everything the design system owns — prose, tokens, and the compiled policies —
-sits together in [`design-system/`](./design-system), so a guideline and its
-machine-checkable policy are a glance apart.
+lives one level up in [`../design-system/`](../design-system), a **sibling of
+`app/`** (not inside this package), so the app and the source of truth it's checked
+against sit side by side. The app even imports that design system's token binding,
+so you can see it *consuming* what it's measured against.
 
 Each stage maps to a section of `DOWNSTREAM.md`:
 
 | Stage | File(s) | §|
 |---|---|---|
 | Store | [`src/store.ts`](./src/store.ts), [`src/database.ts`](./src/database.ts) — `better-sqlite3` | §1 |
-| Allowed-sets | [`src/reference.ts`](./src/reference.ts) + [`design-system/tokens.json`](./design-system/tokens.json) | §2 |
-| Policies | [`design-system/policy.json`](./design-system/policy.json), compiled from [`guidelines.md`](./design-system/guidelines.md) | §3, §5 |
-| Scoring | [`src/conformance.eval.ts`](./src/conformance.eval.ts) — evalite | §4 |
+| Allowed-sets | [`src/reference.ts`](./src/reference.ts) + [`../design-system/tokens.json`](../design-system/tokens.json) | §2 |
+| Policies | [`../design-system/policy.json`](../design-system/policy.json), compiled from [`guidelines.md`](../design-system/guidelines.md) | §3, §5 |
+| Scoring | [`src/policy.eval.ts`](./src/policy.eval.ts) — evalite | §4 |
 | Report & gate | [`src/evaluate.ts`](./src/evaluate.ts), [`src/sarif.ts`](./src/sarif.ts) | §4 |
 
-## The source: `design-system/`
+## The source: `../design-system/`
 
-Everything the design system owns lives in [`design-system/`](./design-system):
+Everything the design system owns lives in [`../design-system/`](../design-system):
 
-- [`guidelines.md`](./design-system/guidelines.md) — the human rules ("use color
+- [`guidelines.md`](../design-system/guidelines.md) — the human rules ("use color
   tokens", "no arbitrary Tailwind values", …).
-- [`tokens.json`](./design-system/tokens.json) — the allowed tokens (DTCG format).
-- [`policy.json`](./design-system/policy.json) — the **machine-checkable form** of
+- [`tokens.json`](../design-system/tokens.json) — the allowed tokens (DTCG format);
+  [`tokens.ts`](../design-system/tokens.ts) is the binding `app/` imports.
+- [`policy.json`](../design-system/policy.json) — the **machine-checkable form** of
   the guidelines, one policy per section, each citing the guideline it enforces
   (`guideline`). Sits next to the prose so you can see how they relate.
 
@@ -103,16 +106,20 @@ node examples/evaluation/dist/cli.js facts.json --db facts.db --sarif results.sa
 npm run eval -w @factlas/example-evaluation
 ```
 
+The eval lives in [`src/policy.eval.ts`](./src/policy.eval.ts) — **one `*.eval.ts`
+per policy bundle**. There's a single bundle (`design-system/policy.json`), so
+there's a single eval; its cases are the individual policies inside it.
+
 Step 2 prints:
 
 ```
-factlas evaluation — acme-design-system-bundle@1.0.0
+factlas evaluation — acme-design-system@1.0.0
   [x] error   color-off-token          9
   [!] warning spacing-off-scale        3
   [!] warning no-arbitrary-tailwind    2
-  [!] warning no-inline-style          6
+  [!] warning no-inline-style          7
   [i] note    needs-review             5
-  25 findings (9 error, 11 warning, 5 note) -> FAIL
+  26 findings (9 error, 12 warning, 5 note) -> FAIL
 ```
 
 Step 3 (evalite) renders a scorecard — one row per enforceable policy, its
@@ -125,7 +132,7 @@ violation count, and its pass/fail score:
 ║ color-off-token        │ 9      │ 0%    ║
 ║ spacing-off-scale      │ 3      │ 0%    ║
 ║ no-arbitrary-tailwind  │ 2      │ 0%    ║
-║ no-inline-style        │ 6      │ 0%    ║
+║ no-inline-style        │ 7      │ 0%    ║
 ╚════════════════════════╧════════╧═══════╝
 ```
 
@@ -165,6 +172,8 @@ inline PR annotations.
 
 ## Determinism
 
-The fact stream is deterministic and content-addressed, so everything here is too:
-the same facts + bundle always produce the same violations, the same SARIF, and the
-same evalite scores (asserted in [`src/evaluate.test.ts`](./src/evaluate.test.ts)).
+The fact stream is deterministic and content-addressed, and everything here is pure
+on top of it — SQL selects and string templates, no clock, no randomness — so the
+same facts + bundle always produce the same violations, the same SARIF, and the same
+evalite scores. This package is a *demonstration*, not a test: factlas's own
+determinism is guarded by the golden-fixture gate in `@factlas/e2e`.

@@ -1,8 +1,9 @@
 import styled from 'styled-components';
-import { BRAND } from '../tokens';
+// The app consumes the design system's token binding (a sibling folder). Because
+// the resolver never crosses a module boundary, BRAND is not resolved here — the
+// styled interpolation below is dynamic regardless.
+import { BRAND } from '../../../design-system/tokens';
 
-// A resolvable one-hop const used in an interpolation is still dynamic at the
-// declaration level (styled interpolations are treated as dynamic).
 const accent = BRAND;
 
 export const Button = styled.button`

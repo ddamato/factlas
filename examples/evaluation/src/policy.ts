@@ -32,9 +32,10 @@ export interface PolicySet {
   policies: Policy[];
 }
 
-const DEFAULT_URL = new URL('../design-system/policy.json', import.meta.url);
+// Resolved from the built file in dist/, so `../../` reaches examples/design-system.
+const DEFAULT_URL = new URL('../../design-system/policy.json', import.meta.url);
 
-/** Load the policy set from `design-system/policy.json`. */
+/** Load the policy set from the sibling `design-system/policy.json`. */
 export async function loadPolicies(url: URL = DEFAULT_URL): Promise<PolicySet> {
   return JSON.parse(await readFile(url, 'utf8')) as PolicySet;
 }

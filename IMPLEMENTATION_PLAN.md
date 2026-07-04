@@ -63,10 +63,10 @@ factlas/
     plugin-tailwind/        # @factlas/plugin-tailwind(Phase 4, default; optional tailwindcss dep)
     cli/                    # @factlas/cli            (thin `extract`)
     e2e/                    # @factlas/e2e            (private golden-fixture gate)
-  examples/                 # static test targets + runnable downstream reference
-    app/                    #   full consumer app exercising every kind
-    plugins/                #   one annotated showcase per plugin
-    evaluation/             #   runnable DOWNSTREAM.md reference (private)
+  examples/                 # a hypothetical repo + runnable downstream reference
+    app/                    #   consumer app exercising every kind (annotated fixture)
+    design-system/          #   source of truth: tokens, guidelines, policy.json
+    evaluation/             #   runnable DOWNSTREAM.md reference (private package)
 ```
 
 ## Dependency ownership (ADR §2.2)

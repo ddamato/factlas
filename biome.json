@@ -13,7 +13,6 @@
       "!**/__snapshots__",
       "!**/fixtures",
       "!**/examples/app",
-      "!**/examples/plugins",
       "!**/.turbo",
       "!**/package.json",
       "!**/CHANGELOG.md"

@@ -14,8 +14,7 @@
     }
   },
   "files": [
-    "dist",
-    "design-system"
+    "dist"
   ],
   "license": "MIT",
   "author": "Donnie D'Amato",
@@ -25,7 +24,6 @@
   "scripts": {
     "build": "tsup",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
     "eval": "tsup && evalite run"
   },
   "dependencies": {

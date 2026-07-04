@@ -23,7 +23,8 @@ interface DtcgGroup {
   [key: string]: DtcgGroup | DtcgToken;
 }
 
-const TOKENS_URL = new URL('../design-system/tokens.json', import.meta.url);
+// Resolved from the built file in dist/, so `../../` reaches examples/design-system.
+const TOKENS_URL = new URL('../../design-system/tokens.json', import.meta.url);
 
 /** Flatten a DTCG tree into `{ path, type, value }` leaves. */
 function* leaves(
