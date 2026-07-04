@@ -1,6 +1,6 @@
 {
   "name": "@factlas/plugin-tailwind",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "description": "Factlas plugin: extract css.class facts from Tailwind className usage (cn/clsx/cva, arbitrary values)",
   "keywords": [
     "factlas",
