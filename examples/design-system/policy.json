@@ -1,0 +1,47 @@
+{
+  "name": "acme-design-system",
+  "version": "1.0.0",
+  "description": "The machine-checkable form of guidelines.md — one policy per guideline section, kept right next to it so you can see how they relate. Each policy's `sql` selects violation rows directly from the single `facts` table (SELECT * ... WHERE ...; zero rows = pass) — facts are compared to policies with no reference/allowed-set layer in between. Common fields are generated columns; kind-specific subject fields are read from the stored JSON with json->>'$.subject.…'. `message` is a template whose {placeholders} are filled from the matched row's columns. How the prose becomes SQL (hand-authored or LLM-compiled behind a deterministic gate) is DOWNSTREAM.md §5; this file is the compiled result.",
+  "policies": [
+    {
+      "id": "hardcoded-color",
+      "guideline": "guidelines.md#color--use-color-tokens",
+      "level": "error",
+      "sql": "SELECT *, json->>'$.subject.property' AS property FROM facts WHERE kind = 'css.declaration' AND value_type = 'color' AND certainty = 'literal'",
+      "message": "Hardcoded color {norm} on \"{property}\" — reference a color token instead",
+      "help": "A literal color is the violation: a conformant value is a token reference (var(--color-*), a token constant), which factlas records as a keyword/dynamic fact, not a literal color. Unresolved values are routed to needs-review, never failed here."
+    },
+    {
+      "id": "hardcoded-spacing",
+      "guideline": "guidelines.md#spacing--use-the-spacing-scale",
+      "level": "warning",
+      "sql": "SELECT *, json->>'$.subject.property' AS property FROM facts WHERE kind = 'css.declaration' AND value_type = 'length' AND certainty = 'literal'",
+      "message": "Hardcoded length {norm} on \"{property}\" — use a spacing/radius token instead",
+      "help": "A literal length is the violation: reference a spacing or radius token (var(--space-*), var(--radius-*)) rather than a raw pixel value."
+    },
+    {
+      "id": "no-arbitrary-tailwind",
+      "guideline": "guidelines.md#utilities--no-arbitrary-tailwind-values",
+      "level": "warning",
+      "sql": "SELECT *, json->>'$.subject.token' AS token FROM facts WHERE kind = 'css.class' AND json_extract(json, '$.subject.is_arbitrary') = 1",
+      "message": "Arbitrary Tailwind class \"{token}\" bypasses the token scale",
+      "help": "Replace bracketed arbitrary values (e.g. text-[#123456], w-[13px]) with a scale utility."
+    },
+    {
+      "id": "no-inline-style",
+      "guideline": "guidelines.md#styling--no-inline-styles",
+      "level": "warning",
+      "sql": "SELECT *, json->>'$.subject.property' AS property FROM facts WHERE kind = 'css.declaration' AND source = 'inline'",
+      "message": "Inline style sets \"{property}\"; prefer a class or token",
+      "help": "Move inline styles into a stylesheet or a token-driven class."
+    },
+    {
+      "id": "needs-review",
+      "guideline": "guidelines.md#verification--unresolved-values-get-reviewed",
+      "level": "note",
+      "sql": "SELECT *, json->>'$.subject.property' AS property FROM facts WHERE kind = 'css.declaration' AND certainty IN ('dynamic', 'unknown')",
+      "message": "Unresolved {value_type} on \"{property}\" ({certainty}: {diagnostic}) needs review",
+      "help": "factlas could not resolve this value statically; a human or a gated Tier-2 check should decide. Never silently passed or failed."
+    }
+  ]
+}

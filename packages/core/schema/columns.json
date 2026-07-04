@@ -1,0 +1,92 @@
+[
+  {
+    "name": "fact_id",
+    "path": "$.fact_id",
+    "type": "text",
+    "nullable": false
+  },
+  {
+    "name": "kind",
+    "path": "$.kind",
+    "type": "text",
+    "nullable": false
+  },
+  {
+    "name": "schema_v",
+    "path": "$.schema_v",
+    "type": "text",
+    "nullable": false
+  },
+  {
+    "name": "file",
+    "path": "$.file",
+    "type": "text",
+    "nullable": false
+  },
+  {
+    "name": "line",
+    "path": "$.loc.line",
+    "type": "integer",
+    "nullable": false
+  },
+  {
+    "name": "col",
+    "path": "$.loc.col",
+    "type": "integer",
+    "nullable": false
+  },
+  {
+    "name": "endLine",
+    "path": "$.loc.endLine",
+    "type": "integer",
+    "nullable": false
+  },
+  {
+    "name": "endCol",
+    "path": "$.loc.endCol",
+    "type": "integer",
+    "nullable": false
+  },
+  {
+    "name": "source",
+    "path": "$.source",
+    "type": "text",
+    "nullable": false
+  },
+  {
+    "name": "producer_v",
+    "path": "$.producer_v",
+    "type": "text",
+    "nullable": false
+  },
+  {
+    "name": "certainty",
+    "path": "$.certainty",
+    "type": "text",
+    "nullable": false
+  },
+  {
+    "name": "diagnostic",
+    "path": "$.diagnostic",
+    "type": "text",
+    "nullable": true
+  },
+  {
+    "name": "raw",
+    "path": "$.value.raw",
+    "type": "text",
+    "nullable": false
+  },
+  {
+    "name": "norm",
+    "path": "$.value.norm",
+    "type": "text",
+    "nullable": true
+  },
+  {
+    "name": "value_type",
+    "path": "$.value.type",
+    "type": "text",
+    "nullable": false
+  }
+]

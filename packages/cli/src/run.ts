@@ -2,9 +2,11 @@
  * The `factlas` CLI, factored as a testable `run(argv, io)` function.
  *
  * `factlas extract [path]` discovers a repo, extracts + normalizes facts with the
- * default plugins, and prints a deterministic `{ snapshot_header, facts }` stream
- * as canonical JSON. Extraction only — no evaluation, gating, or store (those are
- * downstream concerns; see docs/DOWNSTREAM.md).
+ * default plugins, and prints them as a deterministic **NDJSON** stream — one fact
+ * per line — ready to load straight into a database (the primary purpose: facts
+ * you can query for evaluation). `--json` instead prints the
+ * `{ snapshot_header, facts }` object for review. Extraction only — no evaluation,
+ * gating, or store (those are downstream concerns; see docs/DOWNSTREAM.md).
  */
 
 import { readFileSync } from 'node:fs';
@@ -42,19 +44,22 @@ Usage:
   factlas extract [path] [options]
 
 Extracts a normalized, content-addressed fact stream from a TypeScript/TSX + CSS
-repository (static analysis only; never executes your code) and prints it as
-canonical JSON. Extraction only — evaluation/gating is a downstream concern.
+repository (static analysis only; never executes your code). Prints NDJSON by
+default — one fact per line, ready to load into a database. Extraction only —
+evaluation/gating is a downstream concern.
 
 Arguments:
   path                   Directory to scan (default: current directory)
 
 Options:
   -o, --out <file>       Write output to <file> instead of stdout
+      --json             Print the { snapshot_header, facts } object (canonical
+                         JSON, includes the snapshot header) instead of NDJSON
+      --pretty           Pretty-print the review JSON object (implies --json)
       --include <glob>   Glob to include (repeatable; default: **/*.{ts,tsx,css})
       --exclude <glob>   Glob to exclude (repeatable)
       --config <file>    Config file folded into the snapshot header (repeatable;
                          e.g. tailwind.config.ts) so a change invalidates caches
-      --pretty           Pretty-print JSON (default: compact canonical JSON)
       --stats            Print a coverage summary (kinds/certainty/sources +
                          unknown-rate) to stderr
       --no-cache         Disable the incremental cache (.factlas/cache.json);
@@ -62,7 +67,8 @@ Options:
   -h, --help             Show this help
   -v, --version          Show version
 
-Output shape: { "snapshot_header": {...}, "facts": [...] }
+Default output: NDJSON — one JSON fact per line (the snapshot header is omitted;
+use --json to get the { snapshot_header, facts } object instead).
 `;
 
 const OPTIONS = {
@@ -70,6 +76,7 @@ const OPTIONS = {
   config: { type: 'string', multiple: true },
   include: { type: 'string', multiple: true },
   exclude: { type: 'string', multiple: true },
+  json: { type: 'boolean' },
   pretty: { type: 'boolean' },
   stats: { type: 'boolean' },
   'no-cache': { type: 'boolean' },
@@ -151,13 +158,21 @@ export async function run(argv: string[], io: CliIO): Promise<number> {
     }
   }
 
-  const output = { snapshot_header: result.header, facts: result.facts };
-  const json = values.pretty ? JSON.stringify(output, null, 2) : canonicalStringify(output);
+  // Default: NDJSON — one fact per line, ready to load into a database. `--json`
+  // (or `--pretty`) instead emits the { snapshot_header, facts } object for review.
+  let text: string;
+  if (values.json || values.pretty) {
+    const output = { snapshot_header: result.header, facts: result.facts };
+    text = values.pretty ? JSON.stringify(output, null, 2) : canonicalStringify(output);
+  } else {
+    text = result.facts.map((fact) => canonicalStringify(fact)).join('\n');
+  }
+  const payload = text ? `${text}\n` : '';
 
   if (values.out) {
-    await io.writeFile(path.resolve(io.cwd, values.out as string), `${json}\n`);
+    await io.writeFile(path.resolve(io.cwd, values.out as string), payload);
   } else {
-    io.out(`${json}\n`);
+    io.out(payload);
   }
 
   const report = coverageReport(result);

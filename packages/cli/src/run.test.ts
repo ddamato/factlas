@@ -41,31 +41,51 @@ afterEach(async () => {
 });
 
 describe('run: extract', () => {
-  it('emits a { snapshot_header, facts } stream to stdout', async () => {
+  it('emits NDJSON — one fact per line — by default', async () => {
     const io = makeIo();
     io.cwd = root;
     const code = await run(['extract'], io);
     expect(code).toBe(0);
 
-    const output = JSON.parse(io.stdout);
-    expect(output).toHaveProperty('snapshot_header');
-    expect(Array.isArray(output.facts)).toBe(true);
+    // Every non-empty line is a complete, self-contained fact object.
+    const facts = io.stdout
+      .trim()
+      .split('\n')
+      .map((line) => JSON.parse(line) as { fact_id: string; value?: { norm: string } });
+    expect(facts.length).toBeGreaterThan(0);
+    for (const fact of facts) expect(fact).toHaveProperty('fact_id');
+    // No wrapper object / snapshot_header on the default stream.
+    expect(io.stdout).not.toContain('snapshot_header');
     // css #FFF and inline color:red both extracted and normalized.
-    const norms = output.facts.map((f: { value?: { norm: string } }) => f.value?.norm);
+    const norms = facts.map((f) => f.value?.norm);
     expect(norms).toContain('#ffffff');
     expect(norms).toContain('#ff0000');
-    // summary goes to stderr, keeping stdout pure JSON.
+    // summary goes to stderr, keeping stdout pure NDJSON.
     expect(io.stderr).toMatch(/facts from 2 files/);
   });
 
-  it('writes to a file with --out', async () => {
+  it('emits the { snapshot_header, facts } object with --json', async () => {
     const io = makeIo();
     io.cwd = root;
-    const code = await run(['extract', '.', '--out', 'facts.json'], io);
+    const code = await run(['extract', '--json'], io);
+    expect(code).toBe(0);
+    const output = JSON.parse(io.stdout);
+    expect(output).toHaveProperty('snapshot_header');
+    expect(Array.isArray(output.facts)).toBe(true);
+  });
+
+  it('writes NDJSON to a file with --out', async () => {
+    const io = makeIo();
+    io.cwd = root;
+    const code = await run(['extract', '.', '--out', 'facts.ndjson'], io);
     expect(code).toBe(0);
     expect(io.stdout).toBe('');
-    const written = await readFile(path.join(root, 'facts.json'), 'utf8');
-    expect(JSON.parse(written)).toHaveProperty('facts');
+    const written = await readFile(path.join(root, 'facts.ndjson'), 'utf8');
+    const facts = written
+      .trim()
+      .split('\n')
+      .map((line) => JSON.parse(line));
+    expect(facts.every((f) => 'fact_id' in f)).toBe(true);
   });
 
   it('is deterministic: two runs produce identical output', async () => {

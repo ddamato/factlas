@@ -12,8 +12,8 @@
       "!**/coverage",
       "!**/__snapshots__",
       "!**/fixtures",
+      "!**/core/schema",
       "!**/examples/app",
-      "!**/examples/plugins",
       "!**/.turbo",
       "!**/package.json",
       "!**/CHANGELOG.md"

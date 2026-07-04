@@ -17,8 +17,9 @@ theming and drift from the palette over time.
 - ✅ `color: var(--brand)` / `className="text-brand"` / a token constant
 - ❌ `color: #3a3a3a`, `background: rgb(0 0 0)`, `color: rebeccapurple`
 
-> Compiles to **`color-off-token`** (error). Checks literal `color` values against
-> the normalized token set; unresolved values are routed to review, not failed.
+> Compiles to **`hardcoded-color`** (error). Flags any literal `color` declaration —
+> a token reference (`var(--brand)`) is a keyword fact, not a literal color, so it
+> passes; unresolved values are routed to review, not failed.
 
 ## spacing — use the spacing scale
 
@@ -28,8 +29,8 @@ pixel values fragment the rhythm of the UI.
 - ✅ `padding: var(--space-sm)` / `p-2`
 - ❌ `padding: 13px`, `margin-top: 7px`
 
-> Compiles to **`spacing-off-scale`** (warning). Checks literal `length` values
-> against the normalized spacing/radius tokens.
+> Compiles to **`hardcoded-spacing`** (warning). Flags any literal `length`
+> declaration; reference a spacing/radius token instead.
 
 ## utilities — no arbitrary Tailwind values
 

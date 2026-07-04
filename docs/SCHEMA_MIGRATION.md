@@ -73,12 +73,19 @@ versa.
 Do all of this in **one PR**, so the version bump and the regenerated fixtures land
 together and CI's determinism gate stays green:
 
-1. **Make the change** (schema field, normalizer, or resolver).
+1. **Make the change** in the TypeScript types ([`fact.ts`](../packages/core/src/fact.ts)),
+   the normalizer, or the resolver. The **types are the single source of truth**.
 2. **Bump the constant** in [`version.ts`](../packages/core/src/version.ts) — minor
    for a migration.
-3. **Update the JSON Schema** if the fact shape changed:
-   [`packages/core/schema/fact.schema.json`](../packages/core/schema/fact.schema.json)
-   mirrors the TypeScript types and is gated by `FACT_SCHEMA_VERSION`.
+3. **Regenerate the schema artifacts** if the fact shape changed:
+   ```bash
+   npm run generate -w @factlas/core
+   ```
+   This regenerates [`schema/fact.schema.json`](../packages/core/schema/fact.schema.json)
+   **and** [`schema/columns.json`](../packages/core/schema/columns.json) (the DB column
+   manifest) from the types — **don't hand-edit them**. A drift test
+   ([`schema-generated.test.mjs`](../packages/core/src/schema-generated.test.mjs)) fails
+   if the committed files don't match the types.
 4. **Regenerate golden snapshots.** The determinism fixture in `@factlas/e2e` will
    fail until updated:
    ```bash

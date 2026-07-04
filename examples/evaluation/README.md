@@ -18,39 +18,48 @@ scores the policies → SARIF + a CI gate.**
 ```
 design-system/                       the design system's source of truth
   guidelines.md   ─ compiled to ─▶   policy.json   (1 policy per guideline)
-  tokens.json     ─ normalized ──▶   ref_allowed_* tables
-        │                                     │
-factlas extract examples/app                  │
-        │  facts                              │
-        ▼                                     ▼
-   facts.db  ◀───────────  better-sqlite3  (one table per kind + a `facts` view)
-        │
+
+factlas extract examples/app --out facts.ndjson    (NDJSON: one fact per line)
+        │  facts
+        ▼
+   facts.db   ── better-sqlite3: one `facts` table, each fact stored as JSON
+        │                        (common fields = indexed generated columns)
         ├─▶  evalite   score each policy (violations === 0 ? pass : fail) → scorecard
-        └─▶  evaluate  policy SQL → violations → SARIF 2.1.0 + non-zero-exit gate
+        └─▶  evaluate  policy SQL over facts → violations → SARIF 2.1.0 + gate
 ```
 
+**Facts are stored verbatim and compared directly to policies.** factlas emits
+NDJSON precisely so it loads with no reshaping; the store keeps each fact as JSON
+and never mirrors the Fact types. There is no reference/allowed-set layer massaging
+data in between — a policy is a self-contained SQL predicate over the `facts` table
+(see [What a policy looks like](#what-a-policy-looks-like)).
+
 Everything the design system owns — prose, tokens, and the compiled policies —
-sits together in [`design-system/`](./design-system), so a guideline and its
-machine-checkable policy are a glance apart.
+lives one level up in [`../design-system/`](../design-system), a **sibling of
+`app/`** (not inside this package), so the app and the source of truth it's checked
+against sit side by side. The app even imports that design system's token binding,
+so you can see it *consuming* what it's measured against.
 
 Each stage maps to a section of `DOWNSTREAM.md`:
 
 | Stage | File(s) | §|
 |---|---|---|
-| Store | [`src/store.ts`](./src/store.ts), [`src/database.ts`](./src/database.ts) — `better-sqlite3` | §1 |
-| Allowed-sets | [`src/reference.ts`](./src/reference.ts) + [`design-system/tokens.json`](./design-system/tokens.json) | §2 |
-| Policies | [`design-system/policy.json`](./design-system/policy.json), compiled from [`guidelines.md`](./design-system/guidelines.md) | §3, §5 |
-| Scoring | [`src/conformance.eval.ts`](./src/conformance.eval.ts) — evalite | §4 |
+| Store | [`src/store.ts`](./src/store.ts), [`src/database.ts`](./src/database.ts) — `better-sqlite3`, facts stored as JSON | §1 |
+| Policies | [`../design-system/policy.json`](../design-system/policy.json), compiled from [`guidelines.md`](../design-system/guidelines.md) | §3, §5 |
+| Scoring | [`src/policy.eval.ts`](./src/policy.eval.ts) — evalite | §4 |
 | Report & gate | [`src/evaluate.ts`](./src/evaluate.ts), [`src/sarif.ts`](./src/sarif.ts) | §4 |
 
-## The source: `design-system/`
+## The source: `../design-system/`
 
-Everything the design system owns lives in [`design-system/`](./design-system):
+Everything the design system owns lives in [`../design-system/`](../design-system):
 
-- [`guidelines.md`](./design-system/guidelines.md) — the human rules ("use color
+- [`guidelines.md`](../design-system/guidelines.md) — the human rules ("use color
   tokens", "no arbitrary Tailwind values", …).
-- [`tokens.json`](./design-system/tokens.json) — the allowed tokens (DTCG format).
-- [`policy.json`](./design-system/policy.json) — the **machine-checkable form** of
+- [`tokens.json`](../design-system/tokens.json) — the token definitions (DTCG format);
+  [`tokens.ts`](../design-system/tokens.ts) is the binding `app/` imports. **The
+  evaluation never reads these** — it only inspects app facts; the tokens are here
+  because the app references them, not as data the checker consumes.
+- [`policy.json`](../design-system/policy.json) — the **machine-checkable form** of
   the guidelines, one policy per section, each citing the guideline it enforces
   (`guideline`). Sits next to the prose so you can see how they relate.
 
@@ -61,8 +70,8 @@ deterministic validation gate — is the authoring-time concern in
 
 | Policy | Guideline | Severity |
 |---|---|---|
-| `color-off-token` | color → use color tokens | **error** |
-| `spacing-off-scale` | spacing → use the scale | warning |
+| `hardcoded-color` | color → use color tokens | **error** |
+| `hardcoded-spacing` | spacing → use the scale | warning |
 | `no-arbitrary-tailwind` | utilities → no arbitrary values | warning |
 | `no-inline-style` | styling → no inline styles | warning |
 | `needs-review` | verification → unresolved gets reviewed | note |
@@ -75,44 +84,54 @@ matched row's columns. No separate query files:
 
 ```json
 {
-  "id": "color-off-token",
+  "id": "hardcoded-color",
   "guideline": "guidelines.md#color--use-color-tokens",
   "level": "error",
-  "sql": "SELECT * FROM css_declaration WHERE value_type = 'color' AND certainty = 'literal' AND norm NOT IN (SELECT norm FROM ref_allowed_colors)",
-  "message": "Color {norm} on \"{property}\" is not a design token"
+  "sql": "SELECT *, json->>'$.subject.property' AS property FROM facts WHERE kind = 'css.declaration' AND value_type = 'color' AND certainty = 'literal'",
+  "message": "Hardcoded color {norm} on \"{property}\" — reference a color token instead"
 }
 ```
 
 The evaluator runs the `sql`, gets each matched row as an object keyed by column,
 and renders `message` against it (`{norm}` → the row's `norm`, and so on). Zero rows
-= pass. (SQLite's `json_each`/`json_extract` could also reference JSON embedded in a
-policy; here the allowed-sets stay as normalized token tables so a fact and a token
-compare on identical footing.)
+= pass. Common fields (`kind`, `certainty`, `value_type`, `norm`, …) are generated
+columns on the `facts` table; kind-specific subject fields come straight out of the
+stored JSON with `json->>'$.subject.…'`. The predicate is **entirely over the fact**
+— a color that factlas resolved to a literal is the violation, because a conformant
+value is a *token reference* (`var(--brand)`), which factlas records as a keyword
+fact, not a literal color. No allowed-set, no lookup table: facts compared straight
+to policy. (If a policy did need reference data — say a list of approved packages —
+it would carry it inline, e.g. via SQLite's `json_each`, rather than a separate ETL
+step.)
 
 ## Run it
 
 ```bash
-# 1. Extract facts (the part factlas actually does)
-npx @factlas/cli extract examples/app --out facts.json
+# 1. Extract facts (the part factlas actually does) — NDJSON, one fact per line
+npx @factlas/cli extract examples/app --out facts.ndjson
 
 # 2. Load into a SQLite DB, evaluate, and gate. Writes facts.db (a real,
 #    inspectable database) and results.sarif; exits non-zero on any error.
-node examples/evaluation/dist/cli.js facts.json --db facts.db --sarif results.sarif
+node examples/evaluation/dist/cli.js facts.ndjson --db facts.db --sarif results.sarif
 
-# 3. Score the policies with evalite (builds first, then `evalite run`)
+# 3. Score the policies with evalite (needs @factlas/* built: `npm run build`)
 npm run eval -w @factlas/example-evaluation
 ```
+
+The eval lives in [`src/policy.eval.ts`](./src/policy.eval.ts) — **one `*.eval.ts`
+per policy bundle**. There's a single bundle (`design-system/policy.json`), so
+there's a single eval; its cases are the individual policies inside it.
 
 Step 2 prints:
 
 ```
-factlas evaluation — acme-design-system-bundle@1.0.0
-  [x] error   color-off-token          9
-  [!] warning spacing-off-scale        3
+factlas evaluation — acme-design-system@1.0.0
+  [x] error   hardcoded-color          14
+  [!] warning hardcoded-spacing        7
   [!] warning no-arbitrary-tailwind    2
-  [!] warning no-inline-style          6
+  [!] warning no-inline-style          7
   [i] note    needs-review             5
-  25 findings (9 error, 11 warning, 5 note) -> FAIL
+  35 findings (14 error, 16 warning, 5 note) -> FAIL
 ```
 
 Step 3 (evalite) renders a scorecard — one row per enforceable policy, its
@@ -122,10 +141,10 @@ violation count, and its pass/fail score:
 ╔════════════════════════╤════════╤═══════╗
 ║ Input                  │ Output │ Score ║
 ╟────────────────────────┼────────┼───────╢
-║ color-off-token        │ 9      │ 0%    ║
-║ spacing-off-scale      │ 3      │ 0%    ║
+║ hardcoded-color        │ 14     │ 0%    ║
+║ hardcoded-spacing      │ 7      │ 0%    ║
 ║ no-arbitrary-tailwind  │ 2      │ 0%    ║
-║ no-inline-style        │ 6      │ 0%    ║
+║ no-inline-style        │ 7      │ 0%    ║
 ╚════════════════════════╧════════╧═══════╝
 ```
 
@@ -134,17 +153,18 @@ violation count, and its pass/fail score:
 ```ts
 import { buildDatabase, loadPolicies, runPolicies, toSarif } from '@factlas/example-evaluation';
 
-const db = await buildDatabase(facts, { file: 'facts.db' }); // facts: Fact[]
+const db = buildDatabase(facts, { file: 'facts.db' }); // facts: Fact[]
 const result = runPolicies(db, await loadPolicies());
 const sarifLog = toSarif(result);
 ```
 
 ## Two points this makes concrete
 
-- **Normalizer parity.** `color-off-token` only works because the token allowed-set
-  is normalized with the **same `@factlas/core` normalizers** the facts were —
-  `#3366FF` (token) and `#3366ff` (fact) compare equal. Reimplement the normalizer
-  downstream and every check silently drifts. See [`src/reference.ts`](./src/reference.ts).
+- **Facts compared straight to policy.** A policy is a self-contained SQL predicate
+  over the fact tables — no reference DB, no allowed-set, nothing massaging data in
+  between. `hardcoded-color` flags a *literal* color outright; a conformant value is
+  a token reference, which factlas already records as a keyword/dynamic fact rather
+  than a literal color, so it simply doesn't match. The tokens never enter the check.
 - **Certainty routing.** Value policies restrict to `certainty = 'literal'`; a value
   factlas couldn't resolve (`dynamic`/`unknown`) is never silently passed or failed
   — it surfaces in `needs-review` (a SARIF `note`) for a human or a gated Tier-2 check.
@@ -153,8 +173,8 @@ const sarifLog = toSarif(result);
 
 ```yaml
 # illustrative — not enabled in this repo
-- run: npx @factlas/cli extract ./src --out facts.json
-- run: node path/to/factlas-eval facts.json --sarif results.sarif
+- run: npx @factlas/cli extract ./src --out facts.ndjson
+- run: node path/to/factlas-eval facts.ndjson --sarif results.sarif
 - uses: github/codeql-action/upload-sarif@v3
   with:
     sarif_file: results.sarif
@@ -165,6 +185,8 @@ inline PR annotations.
 
 ## Determinism
 
-The fact stream is deterministic and content-addressed, so everything here is too:
-the same facts + bundle always produce the same violations, the same SARIF, and the
-same evalite scores (asserted in [`src/evaluate.test.ts`](./src/evaluate.test.ts)).
+The fact stream is deterministic and content-addressed, and everything here is pure
+on top of it — SQL selects and string templates, no clock, no randomness — so the
+same facts + bundle always produce the same violations, the same SARIF, and the same
+evalite scores. This package is a *demonstration*, not a test: factlas's own
+determinism is guarded by the golden-fixture gate in `@factlas/e2e`.

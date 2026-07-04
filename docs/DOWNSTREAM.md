@@ -10,10 +10,10 @@ team can build (or buy) evaluation on top of the facts. None of it is a
 responsibility of this project; it exists so the seams we expose stay useful.
 
 > 🏃 **A runnable reference of everything below lives in
-> [`examples/evaluation`](../examples/evaluation)** — store (SQLite), normalized
-> allowed-sets, SQL policy bundle, SARIF, and a CI gate, evaluated against
-> `examples/app` with off-the-shelf tech. Read on for the rationale; open that
-> package to see it work.
+> [`examples/evaluation`](../examples/evaluation)** — store (SQLite), a SQL policy
+> bundle whose predicates run straight over the facts, SARIF, and a CI gate,
+> evaluated against `examples/app` with off-the-shelf tech. Read on for the
+> rationale; open that package to see it work.
 
 > Source of truth for the original full-system design is [ADR-0001](../ADR.md)
 > §2.6 and §3 (Phases 5–6). This file summarizes and marks the boundary.
@@ -35,7 +35,7 @@ swappable and non-blocking.
 
 ```
 [ THIS PROJECT — fact layer ]            [ DOWNSTREAM — not built here ]
-repo → factlas extract → facts.json  →   load into store
+repo → factlas extract → facts.ndjson →  load into store
                                           → run policy predicates
                                           → violations
                                           → scores / SARIF / CI gate
@@ -43,21 +43,47 @@ repo → factlas extract → facts.json  →   load into store
 
 ## Recommended components
 
-### 1. Store
-- An embedded SQL database, table-per-kind + a union `facts` view. The runnable
-  reference uses **SQLite** (`better-sqlite3`); **DuckDB** is a natural swap when
-  you want columnar/analytical queries over large fact sets.
+- **Store facts verbatim, don't reshape them.** `factlas extract` emits NDJSON —
+  one fact per line — precisely so it drops into a database with no transformation.
+  The runnable reference keeps a single `facts` table with the fact stored as JSON
+  and the common fields exposed as *generated columns* (declarative `json->>` paths,
+  indexed); kind-specific subject fields are read with `json->>'$.subject.…'` in a
+  policy. Nothing mirrors the Fact types, so the store never changes when the schema
+  evolves. **SQLite** (`better-sqlite3`) here; **DuckDB** (`read_json`) is a natural
+  swap for columnar/analytical queries over large fact sets.
+- **Generate the table from the published manifest.** `@factlas/core` ships
+  `schema/columns.json` — a flat, DB-agnostic list of the common columns
+  (`{ name, path, type, nullable }`), generated from the fact types. Turn it into DDL
+  for any database in a few lines, so the schema can't drift from the fact shape:
+  ```ts
+  import cols from '@factlas/core/schema/columns.json' with { type: 'json' };
+  const generated = cols
+    .filter((c) => c.name !== 'fact_id')
+    .map((c) => `${c.name} ${sqlType(c.type)} AS (json->>'${c.path}')`)
+    .join(',\n');
+  // CREATE TABLE facts (fact_id TEXT PRIMARY KEY, json TEXT, <generated>)
+  ```
+  (Consumers derive DDL; factlas never ships SQL — DB dialects differ, and the store
+  is downstream. The full per-kind shape lives in `schema/fact.schema.json`.)
 - Idempotent upsert keyed on `fact_id`; per-file incremental via content hash
   from the snapshot header.
-- Keep a `FactStore` interface so the store is swappable (e.g. a future move to
-  Meta's Glean/Angle is a bounded port: SQL → Angle, swap the store).
+- Keep the store swappable (e.g. a future move to Meta's Glean/Angle is a bounded
+  port: SQL → Angle).
 
-### 2. Reference data (allowed-sets)
-- Token ETL: DTCG tokens → Style Dictionary → `ref_allowed_*` tables.
-- Component-API ETL: mine `.d.ts` with `ts-morph` → `ref_component_prop_spec`.
-- **Critical:** normalize reference values with the *same* `NORMALIZER_VERSION`
-  function the fact layer uses, or comparisons silently break. Expose/reuse the
-  normalizers from `@factlas/core` rather than reimplementing them.
+### 2. Reference data — prefer none
+- **Most conformance checks need no reference data.** Whether a value is *hardcoded*
+  is intrinsic to the fact (its `certainty`/`value_type`), so "don't hardcode a
+  color — use a token" is a predicate over facts alone. Compare facts straight to
+  policy; don't stand up an allowed-set ETL to massage token data in between. The
+  runnable reference has **no reference layer at all** for exactly this reason.
+- **When a check genuinely needs external data** (e.g. an allow-list of approved
+  packages, or component-prop specs mined from `.d.ts`), keep that data **inside the
+  policy** (inline JSON queried with SQLite's `json_each`), not a separate
+  preprocessing step — the policy stays a self-contained, versioned artifact.
+- **If you must compare against normalized values**, reuse the normalizers from
+  `@factlas/core` rather than reimplementing them, or the two sides drift
+  (`#3366FF` ≠ `#3366ff`). Needing this at all is a sign the check could likely be
+  reframed as a fact-intrinsic predicate instead.
 
 ### 3. Policies
 - A Policy Bundle is versioned, signed **data**: metadata + parameterized SQL
@@ -86,16 +112,15 @@ repo → factlas extract → facts.json  →   load into store
 
 ```
 # In CI or locally:
-factlas extract ./ --out facts.json
+factlas extract ./ --out facts.ndjson   # NDJSON: one fact per line
 
 # Downstream (your system):
-#   1. load facts.json into the store (upsert by fact_id)
-#   2. attach the versioned reference DB (allowed-sets)
-#   3. run the pinned policy bundle's SQL → violation rows
-#   4. score → SARIF → gate the PR
+#   1. load facts.ndjson into the store verbatim (one row per line, upsert by fact_id)
+#   2. run the pinned policy bundle's SQL over the facts → violation rows
+#   3. score → SARIF → gate the PR
 ```
 
-The fact stream is stable and deterministic, so steps 1–4 can be re-run,
+The fact stream is stable and deterministic, so steps 1–3 can be re-run,
 cached, and diffed independently of extraction.
 
 ## Why this split
