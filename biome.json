@@ -12,6 +12,7 @@
       "!**/coverage",
       "!**/__snapshots__",
       "!**/fixtures",
+      "!**/core/schema",
       "!**/examples/app",
       "!**/.turbo",
       "!**/package.json",

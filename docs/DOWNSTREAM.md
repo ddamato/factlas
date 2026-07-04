@@ -51,6 +51,20 @@ repo → factlas extract → facts.ndjson →  load into store
   policy. Nothing mirrors the Fact types, so the store never changes when the schema
   evolves. **SQLite** (`better-sqlite3`) here; **DuckDB** (`read_json`) is a natural
   swap for columnar/analytical queries over large fact sets.
+- **Generate the table from the published manifest.** `@factlas/core` ships
+  `schema/columns.json` — a flat, DB-agnostic list of the common columns
+  (`{ name, path, type, nullable }`), generated from the fact types. Turn it into DDL
+  for any database in a few lines, so the schema can't drift from the fact shape:
+  ```ts
+  import cols from '@factlas/core/schema/columns.json' with { type: 'json' };
+  const generated = cols
+    .filter((c) => c.name !== 'fact_id')
+    .map((c) => `${c.name} ${sqlType(c.type)} AS (json->>'${c.path}')`)
+    .join(',\n');
+  // CREATE TABLE facts (fact_id TEXT PRIMARY KEY, json TEXT, <generated>)
+  ```
+  (Consumers derive DDL; factlas never ships SQL — DB dialects differ, and the store
+  is downstream. The full per-kind shape lives in `schema/fact.schema.json`.)
 - Idempotent upsert keyed on `fact_id`; per-file incremental via content hash
   from the snapshot header.
 - Keep the store swappable (e.g. a future move to Meta's Glean/Angle is a bounded

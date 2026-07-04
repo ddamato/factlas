@@ -2,37 +2,264 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://factlas.dev/schema/fact.schema.json",
   "title": "Factlas Fact",
-  "description": "A single normalized, content-addressed design-system fact. Mirrors @factlas/core src/fact.ts and is gated by FACT_SCHEMA_VERSION.",
-  "type": "object",
-  "oneOf": [
-    { "$ref": "#/$defs/jsxElementFact" },
-    { "$ref": "#/$defs/jsxPropFact" },
-    { "$ref": "#/$defs/jsxAttributeFact" },
-    { "$ref": "#/$defs/importFact" },
-    { "$ref": "#/$defs/cssDeclarationFact" },
-    { "$ref": "#/$defs/cssClassFact" }
-  ],
+  "description": "A single normalized, content-addressed design-system fact. Generated from @factlas/core src/fact.ts (do not edit by hand); gated by FACT_SCHEMA_VERSION.",
+  "$ref": "#/$defs/Fact",
   "$defs": {
-    "loc": {
+    "Fact": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/JsxElementFact"
+        },
+        {
+          "$ref": "#/$defs/JsxPropFact"
+        },
+        {
+          "$ref": "#/$defs/JsxAttributeFact"
+        },
+        {
+          "$ref": "#/$defs/ImportFact"
+        },
+        {
+          "$ref": "#/$defs/CssDeclarationFact"
+        },
+        {
+          "$ref": "#/$defs/CssClassFact"
+        }
+      ],
+      "description": "The single fact type consumers bind to."
+    },
+    "JsxElementFact": {
       "type": "object",
-      "additionalProperties": false,
-      "required": ["line", "col", "endLine", "endCol"],
       "properties": {
-        "line": { "type": "integer", "minimum": 0 },
-        "col": { "type": "integer", "minimum": 0 },
-        "endLine": { "type": "integer", "minimum": 0 },
-        "endCol": { "type": "integer", "minimum": 0 }
-      }
+        "fact_id": {
+          "type": "string",
+          "description": "sha256 of canonical `{kind, file, loc, subject, value.norm}`.",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "kind": {
+          "type": "string",
+          "const": "jsx.element"
+        },
+        "schema_v": {
+          "type": "string",
+          "const": "0.2.0",
+          "description": "{@link  FACT_SCHEMA_VERSION }  at emit time."
+        },
+        "file": {
+          "type": "string",
+          "description": "Repo-relative, POSIX-normalized path."
+        },
+        "loc": {
+          "$ref": "#/$defs/Loc"
+        },
+        "source": {
+          "$ref": "#/$defs/FactSource"
+        },
+        "producer_v": {
+          "type": "string",
+          "description": "Emitting plugin name + version, e.g. `@factlas/plugin-css@0.1.0`."
+        },
+        "certainty": {
+          "$ref": "#/$defs/Certainty"
+        },
+        "diagnostic": {
+          "type": "string",
+          "description": "Why a value is `dynamic`/`unknown`. Required whenever a value could not be fully resolved, so nothing is ever dropped silently (ADR §2.4 rule 6)."
+        },
+        "subject": {
+          "$ref": "#/$defs/JsxElementSubject"
+        }
+      },
+      "required": [
+        "certainty",
+        "fact_id",
+        "file",
+        "kind",
+        "loc",
+        "producer_v",
+        "schema_v",
+        "source",
+        "subject"
+      ],
+      "description": "`jsx.element` carries no value."
     },
-    "certainty": {
+    "Loc": {
+      "type": "object",
+      "properties": {
+        "line": {
+          "type": "number",
+          "minimum": 0
+        },
+        "col": {
+          "type": "number",
+          "minimum": 0
+        },
+        "endLine": {
+          "type": "number",
+          "minimum": 0
+        },
+        "endCol": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "line",
+        "col",
+        "endLine",
+        "endCol"
+      ],
+      "description": "Source location, 1-based line, 0-based column (Babel/PostCSS convention)."
+    },
+    "FactSource": {
       "type": "string",
-      "enum": ["literal", "static-union", "dynamic", "unknown"]
+      "enum": [
+        "plain-css",
+        "css-module",
+        "inline",
+        "css-in-js",
+        "tailwind",
+        "babel-jsx"
+      ],
+      "description": "Where a fact was observed / which extractor path produced it."
     },
-    "source": {
+    "Certainty": {
       "type": "string",
-      "enum": ["plain-css", "css-module", "inline", "css-in-js", "tailwind", "babel-jsx"]
+      "enum": [
+        "literal",
+        "static-union",
+        "dynamic",
+        "unknown"
+      ],
+      "description": "How confidently the value is known (ADR §2.5). Drives policy routing."
     },
-    "valueType": {
+    "JsxElementSubject": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "imported_from": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Package/module the component was imported from, or `null` for DOM/intrinsic."
+        },
+        "is_dom": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "imported_from",
+        "is_dom"
+      ]
+    },
+    "JsxPropFact": {
+      "type": "object",
+      "properties": {
+        "fact_id": {
+          "type": "string",
+          "description": "sha256 of canonical `{kind, file, loc, subject, value.norm}`.",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "kind": {
+          "type": "string",
+          "const": "jsx.prop"
+        },
+        "schema_v": {
+          "type": "string",
+          "const": "0.2.0",
+          "description": "{@link  FACT_SCHEMA_VERSION }  at emit time."
+        },
+        "file": {
+          "type": "string",
+          "description": "Repo-relative, POSIX-normalized path."
+        },
+        "loc": {
+          "$ref": "#/$defs/Loc"
+        },
+        "source": {
+          "$ref": "#/$defs/FactSource"
+        },
+        "producer_v": {
+          "type": "string",
+          "description": "Emitting plugin name + version, e.g. `@factlas/plugin-css@0.1.0`."
+        },
+        "certainty": {
+          "$ref": "#/$defs/Certainty"
+        },
+        "diagnostic": {
+          "type": "string",
+          "description": "Why a value is `dynamic`/`unknown`. Required whenever a value could not be fully resolved, so nothing is ever dropped silently (ADR §2.4 rule 6)."
+        },
+        "subject": {
+          "$ref": "#/$defs/JsxPropSubject"
+        },
+        "value": {
+          "$ref": "#/$defs/FactValue"
+        }
+      },
+      "required": [
+        "certainty",
+        "fact_id",
+        "file",
+        "kind",
+        "loc",
+        "producer_v",
+        "schema_v",
+        "source",
+        "subject",
+        "value"
+      ]
+    },
+    "JsxPropSubject": {
+      "type": "object",
+      "properties": {
+        "component": {
+          "type": "string"
+        },
+        "prop": {
+          "type": "string"
+        },
+        "element_id": {
+          "type": "string",
+          "description": "FK to the owning `jsx.element` fact's `fact_id`."
+        }
+      },
+      "required": [
+        "component",
+        "prop",
+        "element_id"
+      ]
+    },
+    "FactValue": {
+      "type": "object",
+      "properties": {
+        "raw": {
+          "type": "string",
+          "description": "Verbatim source text, for display and diagnostics."
+        },
+        "norm": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Canonical, normalizer-versioned form used for comparison; `null` if dynamic."
+        },
+        "type": {
+          "$ref": "#/$defs/ValueType"
+        }
+      },
+      "required": [
+        "raw",
+        "norm",
+        "type"
+      ],
+      "description": "A value carried by a fact. **Check on `norm`; display `raw`.** `norm` is `null` exactly when `type` is `dynamic` or `unknown`-derived."
+    },
+    "ValueType": {
       "type": "string",
       "enum": [
         "color",
@@ -45,164 +272,360 @@
         "module",
         "dynamic",
         "union"
-      ]
-    },
-    "value": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["raw", "norm", "type"],
-      "properties": {
-        "raw": { "type": "string" },
-        "norm": { "type": ["string", "null"] },
-        "type": { "$ref": "#/$defs/valueType" }
-      }
-    },
-    "envelope": {
-      "type": "object",
-      "required": [
-        "fact_id",
-        "kind",
-        "schema_v",
-        "file",
-        "loc",
-        "source",
-        "producer_v",
-        "certainty"
       ],
+      "description": "The normalized value's type tag. `norm` is `null` for `dynamic`/`unknown`."
+    },
+    "JsxAttributeFact": {
+      "type": "object",
       "properties": {
-        "fact_id": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "fact_id": {
+          "type": "string",
+          "description": "sha256 of canonical `{kind, file, loc, subject, value.norm}`.",
+          "pattern": "^[0-9a-f]{64}$"
+        },
         "kind": {
           "type": "string",
-          "enum": [
-            "jsx.element",
-            "jsx.prop",
-            "jsx.attribute",
-            "import",
-            "css.declaration",
-            "css.class"
+          "const": "jsx.attribute"
+        },
+        "schema_v": {
+          "type": "string",
+          "const": "0.2.0",
+          "description": "{@link  FACT_SCHEMA_VERSION }  at emit time."
+        },
+        "file": {
+          "type": "string",
+          "description": "Repo-relative, POSIX-normalized path."
+        },
+        "loc": {
+          "$ref": "#/$defs/Loc"
+        },
+        "source": {
+          "$ref": "#/$defs/FactSource"
+        },
+        "producer_v": {
+          "type": "string",
+          "description": "Emitting plugin name + version, e.g. `@factlas/plugin-css@0.1.0`."
+        },
+        "certainty": {
+          "$ref": "#/$defs/Certainty"
+        },
+        "diagnostic": {
+          "type": "string",
+          "description": "Why a value is `dynamic`/`unknown`. Required whenever a value could not be fully resolved, so nothing is ever dropped silently (ADR §2.4 rule 6)."
+        },
+        "subject": {
+          "$ref": "#/$defs/JsxAttributeSubject"
+        },
+        "value": {
+          "$ref": "#/$defs/FactValue"
+        }
+      },
+      "required": [
+        "certainty",
+        "fact_id",
+        "file",
+        "kind",
+        "loc",
+        "producer_v",
+        "schema_v",
+        "source",
+        "subject",
+        "value"
+      ]
+    },
+    "JsxAttributeSubject": {
+      "type": "object",
+      "properties": {
+        "owner": {
+          "type": "string"
+        },
+        "attribute": {
+          "type": "string"
+        },
+        "element_id": {
+          "type": "string",
+          "description": "FK to the owning `jsx.element` fact's `fact_id`."
+        }
+      },
+      "required": [
+        "owner",
+        "attribute",
+        "element_id"
+      ]
+    },
+    "ImportFact": {
+      "type": "object",
+      "properties": {
+        "fact_id": {
+          "type": "string",
+          "description": "sha256 of canonical `{kind, file, loc, subject, value.norm}`.",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "kind": {
+          "type": "string",
+          "const": "import"
+        },
+        "schema_v": {
+          "type": "string",
+          "const": "0.2.0",
+          "description": "{@link  FACT_SCHEMA_VERSION }  at emit time."
+        },
+        "file": {
+          "type": "string",
+          "description": "Repo-relative, POSIX-normalized path."
+        },
+        "loc": {
+          "$ref": "#/$defs/Loc"
+        },
+        "source": {
+          "$ref": "#/$defs/FactSource"
+        },
+        "producer_v": {
+          "type": "string",
+          "description": "Emitting plugin name + version, e.g. `@factlas/plugin-css@0.1.0`."
+        },
+        "certainty": {
+          "$ref": "#/$defs/Certainty"
+        },
+        "diagnostic": {
+          "type": "string",
+          "description": "Why a value is `dynamic`/`unknown`. Required whenever a value could not be fully resolved, so nothing is ever dropped silently (ADR §2.4 rule 6)."
+        },
+        "subject": {
+          "$ref": "#/$defs/ImportSubject"
+        },
+        "value": {
+          "$ref": "#/$defs/FactValue",
+          "description": "The imported module specifier as a `module`-typed value."
+        }
+      },
+      "required": [
+        "certainty",
+        "fact_id",
+        "file",
+        "kind",
+        "loc",
+        "producer_v",
+        "schema_v",
+        "source",
+        "subject",
+        "value"
+      ]
+    },
+    "ImportSubject": {
+      "type": "object",
+      "properties": {
+        "specifier": {
+          "type": "string"
+        },
+        "local": {
+          "type": "string"
+        },
+        "import_kind": {
+          "$ref": "#/$defs/ImportKind"
+        }
+      },
+      "required": [
+        "specifier",
+        "local",
+        "import_kind"
+      ]
+    },
+    "ImportKind": {
+      "type": "string",
+      "enum": [
+        "default",
+        "named",
+        "namespace",
+        "side-effect"
+      ],
+      "description": "How an import binding was introduced."
+    },
+    "CssDeclarationFact": {
+      "type": "object",
+      "properties": {
+        "fact_id": {
+          "type": "string",
+          "description": "sha256 of canonical `{kind, file, loc, subject, value.norm}`.",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "kind": {
+          "type": "string",
+          "const": "css.declaration"
+        },
+        "schema_v": {
+          "type": "string",
+          "const": "0.2.0",
+          "description": "{@link  FACT_SCHEMA_VERSION }  at emit time."
+        },
+        "file": {
+          "type": "string",
+          "description": "Repo-relative, POSIX-normalized path."
+        },
+        "loc": {
+          "$ref": "#/$defs/Loc"
+        },
+        "source": {
+          "$ref": "#/$defs/FactSource"
+        },
+        "producer_v": {
+          "type": "string",
+          "description": "Emitting plugin name + version, e.g. `@factlas/plugin-css@0.1.0`."
+        },
+        "certainty": {
+          "$ref": "#/$defs/Certainty"
+        },
+        "diagnostic": {
+          "type": "string",
+          "description": "Why a value is `dynamic`/`unknown`. Required whenever a value could not be fully resolved, so nothing is ever dropped silently (ADR §2.4 rule 6)."
+        },
+        "subject": {
+          "$ref": "#/$defs/CssDeclarationSubject"
+        },
+        "value": {
+          "$ref": "#/$defs/FactValue"
+        }
+      },
+      "required": [
+        "certainty",
+        "fact_id",
+        "file",
+        "kind",
+        "loc",
+        "producer_v",
+        "schema_v",
+        "source",
+        "subject",
+        "value"
+      ]
+    },
+    "CssDeclarationSubject": {
+      "type": "object",
+      "properties": {
+        "property": {
+          "type": "string"
+        },
+        "selector": {
+          "type": [
+            "string",
+            "null"
           ]
         },
-        "schema_v": { "type": "string" },
-        "file": { "type": "string" },
-        "loc": { "$ref": "#/$defs/loc" },
-        "source": { "$ref": "#/$defs/source" },
-        "producer_v": { "type": "string" },
-        "certainty": { "$ref": "#/$defs/certainty" },
-        "diagnostic": { "type": "string" }
-      }
-    },
-    "jsxElementFact": {
-      "allOf": [{ "$ref": "#/$defs/envelope" }],
-      "required": ["subject"],
-      "properties": {
-        "kind": { "const": "jsx.element" },
-        "subject": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["name", "imported_from", "is_dom"],
-          "properties": {
-            "name": { "type": "string" },
-            "imported_from": { "type": ["string", "null"] },
-            "is_dom": { "type": "boolean" }
-          }
+        "media": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "owner_component": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "element_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "FK to the owning `jsx.element` fact's `fact_id` for inline styles (an element instance); `null` for stylesheet (`plain-css`/`css-module`) and styled-component (`css-in-js`) declarations, which are not bound to a single element instance."
         }
-      }
+      },
+      "required": [
+        "property",
+        "selector",
+        "media",
+        "owner_component",
+        "element_id"
+      ]
     },
-    "jsxPropFact": {
-      "allOf": [{ "$ref": "#/$defs/envelope" }],
-      "required": ["subject", "value"],
+    "CssClassFact": {
+      "type": "object",
       "properties": {
-        "kind": { "const": "jsx.prop" },
-        "subject": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["component", "prop", "element_id"],
-          "properties": {
-            "component": { "type": "string" },
-            "prop": { "type": "string" },
-            "element_id": { "type": "string" }
-          }
+        "fact_id": {
+          "type": "string",
+          "description": "sha256 of canonical `{kind, file, loc, subject, value.norm}`.",
+          "pattern": "^[0-9a-f]{64}$"
         },
-        "value": { "$ref": "#/$defs/value" }
-      }
+        "kind": {
+          "type": "string",
+          "const": "css.class"
+        },
+        "schema_v": {
+          "type": "string",
+          "const": "0.2.0",
+          "description": "{@link  FACT_SCHEMA_VERSION }  at emit time."
+        },
+        "file": {
+          "type": "string",
+          "description": "Repo-relative, POSIX-normalized path."
+        },
+        "loc": {
+          "$ref": "#/$defs/Loc"
+        },
+        "source": {
+          "$ref": "#/$defs/FactSource"
+        },
+        "producer_v": {
+          "type": "string",
+          "description": "Emitting plugin name + version, e.g. `@factlas/plugin-css@0.1.0`."
+        },
+        "certainty": {
+          "$ref": "#/$defs/Certainty"
+        },
+        "diagnostic": {
+          "type": "string",
+          "description": "Why a value is `dynamic`/`unknown`. Required whenever a value could not be fully resolved, so nothing is ever dropped silently (ADR §2.4 rule 6)."
+        },
+        "subject": {
+          "$ref": "#/$defs/CssClassSubject"
+        },
+        "value": {
+          "$ref": "#/$defs/FactValue"
+        }
+      },
+      "required": [
+        "certainty",
+        "fact_id",
+        "file",
+        "kind",
+        "loc",
+        "producer_v",
+        "schema_v",
+        "source",
+        "subject",
+        "value"
+      ]
     },
-    "jsxAttributeFact": {
-      "allOf": [{ "$ref": "#/$defs/envelope" }],
-      "required": ["subject", "value"],
+    "CssClassSubject": {
+      "type": "object",
       "properties": {
-        "kind": { "const": "jsx.attribute" },
-        "subject": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["owner", "attribute", "element_id"],
-          "properties": {
-            "owner": { "type": "string" },
-            "attribute": { "type": "string" },
-            "element_id": { "type": "string" }
-          }
+        "token": {
+          "type": "string"
         },
-        "value": { "$ref": "#/$defs/value" }
-      }
-    },
-    "importFact": {
-      "allOf": [{ "$ref": "#/$defs/envelope" }],
-      "required": ["subject", "value"],
-      "properties": {
-        "kind": { "const": "import" },
-        "subject": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["specifier", "local", "import_kind"],
-          "properties": {
-            "specifier": { "type": "string" },
-            "local": { "type": "string" },
-            "import_kind": {
-              "type": "string",
-              "enum": ["default", "named", "namespace", "side-effect"]
-            }
-          }
+        "utility": {
+          "type": [
+            "string",
+            "null"
+          ]
         },
-        "value": { "$ref": "#/$defs/value" }
-      }
-    },
-    "cssDeclarationFact": {
-      "allOf": [{ "$ref": "#/$defs/envelope" }],
-      "required": ["subject", "value"],
-      "properties": {
-        "kind": { "const": "css.declaration" },
-        "subject": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["property", "selector", "media", "owner_component", "element_id"],
-          "properties": {
-            "property": { "type": "string" },
-            "selector": { "type": ["string", "null"] },
-            "media": { "type": ["string", "null"] },
-            "owner_component": { "type": ["string", "null"] },
-            "element_id": { "type": ["string", "null"] }
-          }
+        "is_arbitrary": {
+          "type": "boolean"
         },
-        "value": { "$ref": "#/$defs/value" }
-      }
-    },
-    "cssClassFact": {
-      "allOf": [{ "$ref": "#/$defs/envelope" }],
-      "required": ["subject", "value"],
-      "properties": {
-        "kind": { "const": "css.class" },
-        "subject": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["token", "utility", "is_arbitrary", "element_id"],
-          "properties": {
-            "token": { "type": "string" },
-            "utility": { "type": ["string", "null"] },
-            "is_arbitrary": { "type": "boolean" },
-            "element_id": { "type": ["string", "null"] }
-          }
-        },
-        "value": { "$ref": "#/$defs/value" }
-      }
+        "element_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "FK to the owning `jsx.element` fact's `fact_id`, when known."
+        }
+      },
+      "required": [
+        "token",
+        "utility",
+        "is_arbitrary",
+        "element_id"
+      ]
     }
   }
 }

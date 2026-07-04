@@ -21,7 +21,12 @@ See [ADR-0001](../../ADR.md) for the full design and
 - **Determinism spine** — `canonicalStringify`/`sha256Hex`, content-addressed
   `computeFactId`/`factify`, and `discover` (file discovery + hashing + the
   snapshot header with a `cache_key`).
-- **Published JSON Schema** — `@factlas/core/schema/fact.schema.json`.
+- **Published schema artifacts**, both **generated from the types** (`npm run
+  generate`) and gated by `FACT_SCHEMA_VERSION` — a drift test keeps them in sync:
+  - `@factlas/core/schema/fact.schema.json` — the JSON Schema for a Fact.
+  - `@factlas/core/schema/columns.json` — a flat, DB-agnostic column manifest
+    (`{ name, path, type, nullable }`) for the common fields, so you can generate a
+    fact table in any database straight from what factlas ships (see DOWNSTREAM.md §1).
 
 ```ts
 import {

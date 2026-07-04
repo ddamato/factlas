@@ -49,9 +49,13 @@ export type ImportKind = 'default' | 'named' | 'namespace' | 'side-effect';
 
 /** Source location, 1-based line, 0-based column (Babel/PostCSS convention). */
 export interface Loc {
+  /** @minimum 0 */
   line: number;
+  /** @minimum 0 */
   col: number;
+  /** @minimum 0 */
   endLine: number;
+  /** @minimum 0 */
   endCol: number;
 }
 
@@ -69,7 +73,10 @@ export interface FactValue {
 
 /** Fields present on every fact, regardless of kind (ADR §2.3). */
 export interface FactEnvelope {
-  /** sha256 of canonical `{kind, file, loc, subject, value.norm}`. */
+  /**
+   * sha256 of canonical `{kind, file, loc, subject, value.norm}`.
+   * @pattern ^[0-9a-f]{64}$
+   */
   fact_id: string;
   kind: FactKind;
   /** {@link FACT_SCHEMA_VERSION} at emit time. */
