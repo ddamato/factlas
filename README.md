@@ -8,7 +8,9 @@ components, and classes. Static analysis only: it never executes your code.
 Factlas answers *"what does this code contain?"* deterministically. Deciding
 whether that **conforms** to a design system (a store, policies, scoring, CI
 gating) is deliberately **out of scope** — see
-[docs/DOWNSTREAM.md](./docs/DOWNSTREAM.md) for the recommended architecture.
+[docs/DOWNSTREAM.md](./docs/DOWNSTREAM.md) for the recommended architecture and
+[`examples/evaluation`](./examples/evaluation) for a runnable reference of it
+(guidelines → policies → SQLite → evalite → SARIF).
 
 See [ADR-0001](./ADR.md) for the full design rationale and
 [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md) for build status.
@@ -44,6 +46,7 @@ npx @factlas/cli extract ./src > facts.json
 
 ```ts
 import { extractRepo } from '@factlas/core';
+import jsx from '@factlas/plugin-jsx';
 import css from '@factlas/plugin-css';
 import inlineStyle from '@factlas/plugin-inline-style';
 import styled from '@factlas/plugin-styled';
@@ -51,7 +54,7 @@ import tailwind from '@factlas/plugin-tailwind';
 
 const { header, facts, diagnostics } = await extractRepo({
   root: './src',
-  plugins: [css, inlineStyle, styled, tailwind],
+  plugins: [jsx, css, inlineStyle, styled, tailwind],
 });
 ```
 
@@ -60,6 +63,7 @@ const { header, facts, diagnostics } = await extractRepo({
 | Package | Role |
 |---|---|
 | [`@factlas/core`](./packages/core) | The fact layer: schema, determinism spine, parsing, plugin host, normalizers |
+| [`@factlas/plugin-jsx`](./packages/plugin-jsx) | `import`, `jsx.element`, `jsx.prop`, `jsx.attribute` from TS/TSX |
 | [`@factlas/plugin-css`](./packages/plugin-css) | `css.declaration` from PostCSS stylesheets / CSS Modules |
 | [`@factlas/plugin-inline-style`](./packages/plugin-inline-style) | `css.declaration` from JSX `style={{}}` |
 | [`@factlas/plugin-styled`](./packages/plugin-styled) | `css.declaration` from styled-components / emotion |

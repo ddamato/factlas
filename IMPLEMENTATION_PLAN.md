@@ -11,7 +11,7 @@ recommendations in [docs/DOWNSTREAM.md](./docs/DOWNSTREAM.md).
 **In scope — the fact layer:**
 - `@factlas/core` — Fact schema, determinism spine, parsing, plugin host,
   normalizers.
-- `@factlas/plugin-css`, `@factlas/plugin-inline-style`,
+- `@factlas/plugin-jsx`, `@factlas/plugin-css`, `@factlas/plugin-inline-style`,
   `@factlas/plugin-styled`, `@factlas/plugin-tailwind` — technology extractors.
 - `@factlas/cli` — a **thin `factlas extract`** command that emits the normalized
   fact stream (+ snapshot header) to JSON/stdout. Extraction only; no
@@ -24,7 +24,10 @@ recommendations in [docs/DOWNSTREAM.md](./docs/DOWNSTREAM.md).
 
 The project preserves the seams (stable Fact schema + JSON Schema, deterministic
 `fact_id`) so a downstream system can consume facts without this project taking
-on that responsibility.
+on that responsibility. A **runnable reference** of that out-of-scope system
+lives in [`examples/evaluation`](./examples/evaluation) (guidelines → policies →
+SQLite → evalite → SARIF); it is a private, unpublished example, not part of the
+shipped library.
 
 ## Decisions (locked)
 
@@ -52,13 +55,18 @@ factlas/
   .github/workflows/        # ci.yml + release.yml
   docs/DOWNSTREAM.md        # recommended (out-of-scope) evaluation system
   packages/
-    core/                   # @factlas/core          (Phases 1–3)
+    core/                   # @factlas/core          (Phases 1–3, + incremental cache)
+    plugin-jsx/             # @factlas/plugin-jsx     (Phase 4, default; import + jsx.*)
     plugin-css/             # @factlas/plugin-css     (Phase 4, default)
     plugin-inline-style/    # @factlas/plugin-inline-style (Phase 4, default)
-    plugin-styled/          # @factlas/plugin-styled  (Phase 4)
-    plugin-tailwind/        # @factlas/plugin-tailwind(Phase 4, optional tailwindcss dep)
+    plugin-styled/          # @factlas/plugin-styled  (Phase 4, default)
+    plugin-tailwind/        # @factlas/plugin-tailwind(Phase 4, default; optional tailwindcss dep)
     cli/                    # @factlas/cli            (thin `extract`)
-  fixtures/                 # sample repo for golden determinism tests
+    e2e/                    # @factlas/e2e            (private golden-fixture gate)
+  examples/                 # static test targets + runnable downstream reference
+    app/                    #   full consumer app exercising every kind
+    plugins/                #   one annotated showcase per plugin
+    evaluation/             #   runnable DOWNSTREAM.md reference (private)
 ```
 
 ## Dependency ownership (ADR §2.2)
@@ -112,14 +120,16 @@ workflows, and the `@factlas/core` skeleton (builds/typechecks/tests/lints green
 
 ## Phase 4 — Plugins ✅ (done)
 
-12. `@factlas/plugin-css`, `@factlas/plugin-inline-style` (bundled defaults). ✅
+12. `@factlas/plugin-jsx` (bundled default): the non-styling kinds from TS/TSX —
+    `import`, `jsx.element`, `jsx.prop`, `jsx.attribute`; owns `element_id`. ✅
+    `@factlas/plugin-css`, `@factlas/plugin-inline-style` (bundled defaults). ✅
 13. `@factlas/plugin-styled` (import-aware tag recognition; interpolations →
     `dynamic` per ADR §2.4/§2.5). ✅
 14. `@factlas/plugin-tailwind` (separate package; extracts `css.class` with
     utility/arbitrary parsing; recognizes `cn`/`clsx`/`cva`/`twMerge`;
     conditional classes → `static-union`). ✅
 15. `@factlas/e2e` (private): golden-fixture byte-stability test over a sample
-    repo exercising all four plugins + a two-run equality check. ✅
+    repo exercising all five plugins + a two-run equality check. ✅
 
 > Tailwind v1 extracts and structures class usage; full class→declaration
 > resolution via the Tailwind engine is deferred (documented in the package).
@@ -137,13 +147,21 @@ workflows, and the `@factlas/core` skeleton (builds/typechecks/tests/lints green
 
 ---
 
-## Status: project scope complete
+## Status: project scope complete & published
 
-All in-scope phases (1–5) are built, tested, and green: the fact layer
-(`@factlas/core`), the four plugins, and the `factlas extract` CLI. Determinism
-is guarded by the golden-fixture byte-stability test. Remaining work is the
-out-of-scope downstream system (docs/DOWNSTREAM.md) and pre-publish tasks
-(npm org is set; `NPM_TOKEN` secret is set; run `changeset` to cut versions).
+All in-scope phases (1–5) are built, tested, green, and **published to npm** under
+`@factlas`: the fact layer (`@factlas/core`), the five plugins (`plugin-jsx`,
+`plugin-css`, `plugin-inline-style`, `plugin-styled`, `plugin-tailwind`), and the
+`factlas extract` CLI. Determinism is guarded by the golden-fixture byte-stability
+test; the snapshot header carries `tool_versions` and a per-run `cache_key`, and
+`@factlas/core` ships an incremental per-file disk cache. Releases run through
+Changesets with npm provenance.
+
+The only deferred functional item is **full Tailwind class→declaration resolution
+via the Tailwind engine** (documented in `@factlas/plugin-tailwind`); it is in
+genuine tension with the never-execute-repo-code invariant and needs its own design
+doc. Everything downstream of the facts remains out of scope, now with a runnable
+reference in [`examples/evaluation`](./examples/evaluation).
 
 ## Testing & quality gates (ADR §4)
 

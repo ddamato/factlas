@@ -77,9 +77,11 @@ const extracted = extractFile({ file, code, plugins });
 const facts = assembleFacts(extracted); // normalized, sorted Facts
 ```
 
-**Phase 4 (default plugins) — complete.** The four plugins now extract real
+**Phase 4 (default plugins) — complete.** The five plugins now extract real
 facts end-to-end, verified by a golden-fixture byte-stability test:
 
+- [`@factlas/plugin-jsx`](../plugin-jsx) — `import` + `jsx.element` / `jsx.prop`
+  / `jsx.attribute` from TS/TSX; owns `element_id`.
 - [`@factlas/plugin-css`](../plugin-css) — `css.declaration` from stylesheets.
 - [`@factlas/plugin-inline-style`](../plugin-inline-style) — `css.declaration`
   (source `inline`) from `style={{}}`.
