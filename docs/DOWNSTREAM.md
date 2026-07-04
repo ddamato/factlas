@@ -35,7 +35,7 @@ swappable and non-blocking.
 
 ```
 [ THIS PROJECT — fact layer ]            [ DOWNSTREAM — not built here ]
-repo → factlas extract → facts.json  →   load into store
+repo → factlas extract → facts.ndjson →  load into store
                                           → run policy predicates
                                           → violations
                                           → scores / SARIF / CI gate
@@ -43,14 +43,18 @@ repo → factlas extract → facts.json  →   load into store
 
 ## Recommended components
 
-### 1. Store
-- An embedded SQL database, table-per-kind + a union `facts` view. The runnable
-  reference uses **SQLite** (`better-sqlite3`); **DuckDB** is a natural swap when
-  you want columnar/analytical queries over large fact sets.
+- **Store facts verbatim, don't reshape them.** `factlas extract` emits NDJSON —
+  one fact per line — precisely so it drops into a database with no transformation.
+  The runnable reference keeps a single `facts` table with the fact stored as JSON
+  and the common fields exposed as *generated columns* (declarative `json->>` paths,
+  indexed); kind-specific subject fields are read with `json->>'$.subject.…'` in a
+  policy. Nothing mirrors the Fact types, so the store never changes when the schema
+  evolves. **SQLite** (`better-sqlite3`) here; **DuckDB** (`read_json`) is a natural
+  swap for columnar/analytical queries over large fact sets.
 - Idempotent upsert keyed on `fact_id`; per-file incremental via content hash
   from the snapshot header.
-- Keep a `FactStore` interface so the store is swappable (e.g. a future move to
-  Meta's Glean/Angle is a bounded port: SQL → Angle, swap the store).
+- Keep the store swappable (e.g. a future move to Meta's Glean/Angle is a bounded
+  port: SQL → Angle).
 
 ### 2. Reference data — prefer none
 - **Most conformance checks need no reference data.** Whether a value is *hardcoded*
@@ -94,10 +98,10 @@ repo → factlas extract → facts.json  →   load into store
 
 ```
 # In CI or locally:
-factlas extract ./ --out facts.json
+factlas extract ./ --out facts.ndjson   # NDJSON: one fact per line
 
 # Downstream (your system):
-#   1. load facts.json into the store (upsert by fact_id)
+#   1. load facts.ndjson into the store verbatim (one row per line, upsert by fact_id)
 #   2. run the pinned policy bundle's SQL over the facts → violation rows
 #   3. score → SARIF → gate the PR
 ```

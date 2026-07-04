@@ -24,11 +24,13 @@ factlas extract [path] [options]
 
 ```
 -o, --out <file>       Write output to <file> instead of stdout
+    --json             Emit the { snapshot_header, facts } object (canonical JSON,
+                       includes the snapshot header) instead of the default NDJSON
+    --pretty           Pretty-print the review JSON object (implies --json)
     --include <glob>   Glob to include (repeatable; default: **/*.{ts,tsx,css})
     --exclude <glob>   Glob to exclude (repeatable)
     --config <file>    Config file folded into the snapshot header (repeatable;
                        e.g. tailwind.config.ts) so a change invalidates caches
-    --pretty           Pretty-print JSON (default: compact canonical JSON)
     --stats            Print a coverage summary (kinds/certainty/sources +
                        unknown-rate) to stderr
     --no-cache         Disable the incremental cache (.factlas/cache.json);
@@ -50,29 +52,35 @@ invalidates the whole cache. Add `.factlas/` to your `.gitignore`, or pass
 ### Examples
 
 ```bash
-# Print the fact stream for the current repo
+# Print the fact stream (NDJSON) for the current repo
 factlas extract .
 
-# Write to a file, hashing the Tailwind config into the snapshot header
-factlas extract ./src --out facts.json --config tailwind.config.ts
+# Write NDJSON to a file, hashing the Tailwind config into the snapshot header
+factlas extract ./src --out facts.ndjson --config tailwind.config.ts
 
-# In CI: pipe facts onward to your evaluation step
-factlas extract . | your-evaluator
+# In CI: pipe facts straight into a database / evaluation step
+factlas extract . | your-loader
+
+# The { snapshot_header, facts } object, for reading by eye
+factlas extract . --json --pretty
 ```
 
 ## Output
 
-Canonical JSON with a stable shape:
+**NDJSON by default** — one JSON fact per line — because the point of a fact stream
+is to load it into a database and query it. Each line is a complete, content-addressed
+record, so it drops straight into any generic loader (SQLite, DuckDB, `jq`, …) with no
+unwrapping:
 
-```json
-{
-  "snapshot_header": { "schema_v": "...", "cache_key": "...", "...": "..." },
-  "facts": [ { "fact_id": "...", "kind": "css.declaration", "...": "..." } ]
-}
+```
+{"fact_id":"1d52…","kind":"css.declaration","file":"Button.css","certainty":"literal","value":{"raw":"#FFF","norm":"#ffffff","type":"color"},"subject":{"property":"color","…":"…"}}
+{"fact_id":"9af3…","kind":"css.class","…":"…"}
 ```
 
-A per-run summary (file count, fact count, dynamic/unknown count, diagnostics) is
-written to **stderr**, so **stdout** stays pure JSON for piping.
+Pass `--json` for the `{ snapshot_header, facts }` object instead (adds the snapshot
+header — `schema_v`, `cache_key`, tool/plugin versions), or `--json --pretty` to
+pretty-print it for review. A per-run summary (file/fact counts, dynamic/unknown,
+diagnostics) always goes to **stderr**, so **stdout** stays a clean stream.
 
 ## Default plugins
 

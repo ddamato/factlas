@@ -5,8 +5,8 @@
  * exits non-zero when any `error`-level violation is found.
  *
  * Usage:
- *   factlas extract ./src --out facts.json
- *   factlas-eval facts.json --db facts.db > results.sarif
+ *   factlas extract ./src --out facts.ndjson
+ *   factlas-eval facts.ndjson --db facts.db > results.sarif
  */
 
 import { readFile, writeFile } from 'node:fs/promises';
@@ -23,9 +23,10 @@ const USAGE = `factlas-eval — evaluate a factlas fact stream (demo)
 Usage:
   factlas-eval <facts.json> [--db <file>] [--sarif <file>]
 
-Loads a fact stream (the { snapshot_header, facts } output of \`factlas extract\`,
-or a bare facts array) into a SQLite database, runs the bundled policy set, and
-emits SARIF 2.1.0. Exits non-zero if any error-level violation is found.
+Loads a fact stream — NDJSON (the default \`factlas extract\` output) or the
+\`--json\` { snapshot_header, facts } object — into a SQLite database, runs the
+bundled policy set, and emits SARIF 2.1.0. Exits non-zero on any error-level
+violation.
 
 Options:
   --db <file>      Persist the fact database to <file> (default: in memory)
@@ -33,17 +34,31 @@ Options:
   -h, --help       Show this help
 `;
 
-/** Read a facts file that is either { facts: [...] } or a bare array. */
-function factsOf(parsed: unknown): Fact[] {
-  if (Array.isArray(parsed)) return parsed as Fact[];
-  if (
-    parsed &&
-    typeof parsed === 'object' &&
-    Array.isArray((parsed as { facts?: unknown }).facts)
-  ) {
-    return (parsed as { facts: Fact[] }).facts;
+/**
+ * Read a facts file. The default `factlas extract` output is **NDJSON** (one fact
+ * per line); also accepts the `--json` `{ facts: [...] }` object and a bare array.
+ */
+function factsOf(text: string): Fact[] {
+  const trimmed = text.trim();
+  if (!trimmed) return [];
+  try {
+    // Whole-file JSON: the `--json` object, or a bare array.
+    const parsed = JSON.parse(trimmed) as unknown;
+    if (Array.isArray(parsed)) return parsed as Fact[];
+    if (
+      parsed &&
+      typeof parsed === 'object' &&
+      Array.isArray((parsed as { facts?: unknown }).facts)
+    ) {
+      return (parsed as { facts: Fact[] }).facts;
+    }
+  } catch {
+    // Not whole-file JSON — fall through to NDJSON (one fact per line).
   }
-  throw new Error('expected a JSON array of facts or an object with a "facts" array');
+  return trimmed
+    .split('\n')
+    .filter(Boolean)
+    .map((line) => JSON.parse(line) as Fact);
 }
 
 async function main(argv: string[]): Promise<number> {
@@ -65,7 +80,7 @@ async function main(argv: string[]): Promise<number> {
   const factsPath = positionals[0] as string;
   let facts: Fact[];
   try {
-    facts = factsOf(JSON.parse(await readFile(factsPath, 'utf8')));
+    facts = factsOf(await readFile(factsPath, 'utf8'));
   } catch (err) {
     process.stderr.write(`factlas-eval: cannot read ${factsPath}: ${message(err)}\n`);
     return 2;

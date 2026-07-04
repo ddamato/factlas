@@ -17,26 +17,21 @@ See [ADR-0001](./ADR.md) for the full design rationale and
 
 ## Quick start
 
+Facts come out as **NDJSON — one fact per line** — so they load straight into a
+database to be queried (which is the point: facts exist to be *evaluated*):
+
 ```bash
-npx @factlas/cli extract ./src > facts.json
+npx @factlas/cli extract ./src > facts.ndjson
 ```
 
-```json
-{
-  "snapshot_header": { "schema_v": "0.2.0", "cache_key": "…", "…": "…" },
-  "facts": [
-    {
-      "fact_id": "1d52c98a…",
-      "kind": "css.declaration",
-      "file": "Button.css",
-      "certainty": "literal",
-      "source": "plain-css",
-      "subject": { "property": "color", "selector": ".btn", "…": "…" },
-      "value": { "raw": "#FFF", "norm": "#ffffff", "type": "color" }
-    }
-  ]
-}
 ```
+{"fact_id":"1d52c98a…","kind":"css.declaration","file":"Button.css","certainty":"literal","source":"plain-css","subject":{"property":"color","selector":".btn","…":"…"},"value":{"raw":"#FFF","norm":"#ffffff","type":"color"}}
+{"fact_id":"9af31b7e…","kind":"css.class","…":"…"}
+```
+
+Each line is a complete, content-addressed record — pipe it into SQLite/DuckDB/`jq`
+with no unwrapping. Add `--json` (optionally `--pretty`) for the
+`{ snapshot_header, facts }` object instead, when you want the header or a human read.
 
 **Check on `norm`, display `raw`.** Because facts are content-addressed over the
 *normalized* value, `#FFF` and `#ffffff` collapse to one fact, and an inline

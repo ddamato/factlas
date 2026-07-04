@@ -19,18 +19,20 @@ scores the policies → SARIF + a CI gate.**
 design-system/                       the design system's source of truth
   guidelines.md   ─ compiled to ─▶   policy.json   (1 policy per guideline)
 
-factlas extract examples/app
+factlas extract examples/app --out facts.ndjson    (NDJSON: one fact per line)
         │  facts
         ▼
-   facts.db   ── better-sqlite3: one table per kind + a `facts` view (facts only)
-        │
+   facts.db   ── better-sqlite3: one `facts` table, each fact stored as JSON
+        │                        (common fields = indexed generated columns)
         ├─▶  evalite   score each policy (violations === 0 ? pass : fail) → scorecard
         └─▶  evaluate  policy SQL over facts → violations → SARIF 2.1.0 + gate
 ```
 
-**Facts are compared directly to policies.** There is no reference/allowed-set
-layer massaging token data in between — a policy is a self-contained SQL predicate
-over the fact tables (see [What a policy looks like](#what-a-policy-looks-like)).
+**Facts are stored verbatim and compared directly to policies.** factlas emits
+NDJSON precisely so it loads with no reshaping; the store keeps each fact as JSON
+and never mirrors the Fact types. There is no reference/allowed-set layer massaging
+data in between — a policy is a self-contained SQL predicate over the `facts` table
+(see [What a policy looks like](#what-a-policy-looks-like)).
 
 Everything the design system owns — prose, tokens, and the compiled policies —
 lives one level up in [`../design-system/`](../design-system), a **sibling of
@@ -42,7 +44,7 @@ Each stage maps to a section of `DOWNSTREAM.md`:
 
 | Stage | File(s) | §|
 |---|---|---|
-| Store | [`src/store.ts`](./src/store.ts), [`src/database.ts`](./src/database.ts) — `better-sqlite3` | §1 |
+| Store | [`src/store.ts`](./src/store.ts), [`src/database.ts`](./src/database.ts) — `better-sqlite3`, facts stored as JSON | §1 |
 | Policies | [`../design-system/policy.json`](../design-system/policy.json), compiled from [`guidelines.md`](../design-system/guidelines.md) | §3, §5 |
 | Scoring | [`src/policy.eval.ts`](./src/policy.eval.ts) — evalite | §4 |
 | Report & gate | [`src/evaluate.ts`](./src/evaluate.ts), [`src/sarif.ts`](./src/sarif.ts) | §4 |
@@ -85,29 +87,32 @@ matched row's columns. No separate query files:
   "id": "hardcoded-color",
   "guideline": "guidelines.md#color--use-color-tokens",
   "level": "error",
-  "sql": "SELECT * FROM css_declaration WHERE value_type = 'color' AND certainty = 'literal'",
+  "sql": "SELECT *, json->>'$.subject.property' AS property FROM facts WHERE kind = 'css.declaration' AND value_type = 'color' AND certainty = 'literal'",
   "message": "Hardcoded color {norm} on \"{property}\" — reference a color token instead"
 }
 ```
 
 The evaluator runs the `sql`, gets each matched row as an object keyed by column,
 and renders `message` against it (`{norm}` → the row's `norm`, and so on). Zero rows
-= pass. The predicate is **entirely over the fact** — a color that factlas resolved
-to a literal is the violation, because a conformant value is a *token reference*
-(`var(--brand)`), which factlas records as a keyword fact, not a literal color. No
-allowed-set, no lookup table: facts compared straight to policy. (If a policy did
-need reference data — say a list of approved packages — it would carry it inline,
-e.g. via SQLite's `json_each`, rather than a separate ETL step.)
+= pass. Common fields (`kind`, `certainty`, `value_type`, `norm`, …) are generated
+columns on the `facts` table; kind-specific subject fields come straight out of the
+stored JSON with `json->>'$.subject.…'`. The predicate is **entirely over the fact**
+— a color that factlas resolved to a literal is the violation, because a conformant
+value is a *token reference* (`var(--brand)`), which factlas records as a keyword
+fact, not a literal color. No allowed-set, no lookup table: facts compared straight
+to policy. (If a policy did need reference data — say a list of approved packages —
+it would carry it inline, e.g. via SQLite's `json_each`, rather than a separate ETL
+step.)
 
 ## Run it
 
 ```bash
-# 1. Extract facts (the part factlas actually does)
-npx @factlas/cli extract examples/app --out facts.json
+# 1. Extract facts (the part factlas actually does) — NDJSON, one fact per line
+npx @factlas/cli extract examples/app --out facts.ndjson
 
 # 2. Load into a SQLite DB, evaluate, and gate. Writes facts.db (a real,
 #    inspectable database) and results.sarif; exits non-zero on any error.
-node examples/evaluation/dist/cli.js facts.json --db facts.db --sarif results.sarif
+node examples/evaluation/dist/cli.js facts.ndjson --db facts.db --sarif results.sarif
 
 # 3. Score the policies with evalite (needs @factlas/* built: `npm run build`)
 npm run eval -w @factlas/example-evaluation
@@ -168,8 +173,8 @@ const sarifLog = toSarif(result);
 
 ```yaml
 # illustrative — not enabled in this repo
-- run: npx @factlas/cli extract ./src --out facts.json
-- run: node path/to/factlas-eval facts.json --sarif results.sarif
+- run: npx @factlas/cli extract ./src --out facts.ndjson
+- run: node path/to/factlas-eval facts.ndjson --sarif results.sarif
 - uses: github/codeql-action/upload-sarif@v3
   with:
     sarif_file: results.sarif
