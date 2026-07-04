@@ -3,8 +3,9 @@
  *
  * Routes a raw value to the normalizer for its {@link ValueType} and returns the
  * canonical `norm` (or `null` when it cannot be normalized, or when the type is
- * not directly comparable — `union`/`dynamic`). This is the single function that
- * facts and reference/allowed-set tables must both use (ADR §2.4 rule 7).
+ * not directly comparable — `union`/`dynamic`). This is the single normalizer any
+ * downstream comparison must reuse, so the two sides never drift
+ * (`#3366FF` = `#3366ff`).
  *
  * Part of the {@link NORMALIZER_VERSION} surface.
  */

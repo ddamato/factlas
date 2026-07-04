@@ -1,5 +1,5 @@
 /**
- * Golden-fixture determinism test (ADR §4 — the headline guarantee).
+ * Golden-fixture determinism test.
  *
  * Runs the real default plugins over a checked-in sample repo and asserts the
  * assembled fact stream is byte-stable: a checked-in snapshot plus an equality

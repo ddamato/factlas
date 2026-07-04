@@ -64,7 +64,7 @@
         },
         "diagnostic": {
           "type": "string",
-          "description": "Why a value is `dynamic`/`unknown`. Required whenever a value could not be fully resolved, so nothing is ever dropped silently (ADR §2.4 rule 6)."
+          "description": "Why a value is `dynamic`/`unknown`. Required whenever a value could not be fully resolved, so nothing is ever dropped silently."
         },
         "subject": {
           "$ref": "#/$defs/JsxElementSubject"
@@ -131,7 +131,7 @@
         "dynamic",
         "unknown"
       ],
-      "description": "How confidently the value is known (ADR §2.5). Drives policy routing."
+      "description": "How confidently the value is known. Drives policy routing."
     },
     "JsxElementSubject": {
       "type": "object",
@@ -192,7 +192,7 @@
         },
         "diagnostic": {
           "type": "string",
-          "description": "Why a value is `dynamic`/`unknown`. Required whenever a value could not be fully resolved, so nothing is ever dropped silently (ADR §2.4 rule 6)."
+          "description": "Why a value is `dynamic`/`unknown`. Required whenever a value could not be fully resolved, so nothing is ever dropped silently."
         },
         "subject": {
           "$ref": "#/$defs/JsxPropSubject"
@@ -311,7 +311,7 @@
         },
         "diagnostic": {
           "type": "string",
-          "description": "Why a value is `dynamic`/`unknown`. Required whenever a value could not be fully resolved, so nothing is ever dropped silently (ADR §2.4 rule 6)."
+          "description": "Why a value is `dynamic`/`unknown`. Required whenever a value could not be fully resolved, so nothing is ever dropped silently."
         },
         "subject": {
           "$ref": "#/$defs/JsxAttributeSubject"
@@ -389,7 +389,7 @@
         },
         "diagnostic": {
           "type": "string",
-          "description": "Why a value is `dynamic`/`unknown`. Required whenever a value could not be fully resolved, so nothing is ever dropped silently (ADR §2.4 rule 6)."
+          "description": "Why a value is `dynamic`/`unknown`. Required whenever a value could not be fully resolved, so nothing is ever dropped silently."
         },
         "subject": {
           "$ref": "#/$defs/ImportSubject"
@@ -477,7 +477,7 @@
         },
         "diagnostic": {
           "type": "string",
-          "description": "Why a value is `dynamic`/`unknown`. Required whenever a value could not be fully resolved, so nothing is ever dropped silently (ADR §2.4 rule 6)."
+          "description": "Why a value is `dynamic`/`unknown`. Required whenever a value could not be fully resolved, so nothing is ever dropped silently."
         },
         "subject": {
           "$ref": "#/$defs/CssDeclarationSubject"
@@ -575,7 +575,7 @@
         },
         "diagnostic": {
           "type": "string",
-          "description": "Why a value is `dynamic`/`unknown`. Required whenever a value could not be fully resolved, so nothing is ever dropped silently (ADR §2.4 rule 6)."
+          "description": "Why a value is `dynamic`/`unknown`. Required whenever a value could not be fully resolved, so nothing is ever dropped silently."
         },
         "subject": {
           "$ref": "#/$defs/CssClassSubject"

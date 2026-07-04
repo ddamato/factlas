@@ -1,5 +1,5 @@
 /**
- * Pinned tool versions for the snapshot header (ADR §2.4 rule 4).
+ * Pinned tool versions for the snapshot header.
  *
  * The parsers and value libraries factlas uses can change their output across
  * versions (a Babel grammar update, a culori color-space tweak). Folding their

@@ -8,8 +8,7 @@ TypeScript/TSX and CSS by static analysis.
 > dispatches to technology plugins, normalizes their raw observations with
 > versioned algorithms, and assigns each fact a content-addressed `fact_id`.
 
-See [ADR-0001](../../ADR.md) for the full design and
-[IMPLEMENTATION_PLAN.md](../../IMPLEMENTATION_PLAN.md) for build status.
+See the [project README's Design section](../../README.md#design) for the full design.
 
 ## Status
 
@@ -66,7 +65,8 @@ const { observations, diagnostics } = extractFile({ file, code, plugins });
 - **Versioned normalizers** (pure, gated by `NORMALIZER_VERSION`): `normalizeColor`
   (culori → canonical hex), `normalizeLength`, `normalizeKeyword`,
   `normalizeProperty` (camelCase/vendor-prefix → kebab), and the `normalizeValue`
-  dispatcher — the single function facts and allowed-sets must share.
+  dispatcher — the one place raw values become canonical, so any downstream
+  comparison reuses it rather than reimplementing it (`#3366FF` = `#3366ff`).
 - **`classifyCertainty`** — the certainty decision tree (`literal | static-union |
   dynamic | unknown`).
 - **`assembleFact` / `assembleFacts`** — turn a raw observation into a finalized,
@@ -93,7 +93,8 @@ facts end-to-end, verified by a golden-fixture byte-stability test:
 - [`@factlas/plugin-styled`](../plugin-styled) — `css.declaration` (source
   `css-in-js`) from styled-components / emotion.
 - [`@factlas/plugin-tailwind`](../plugin-tailwind) — `css.class` from Tailwind
-  `className` usage (`cn`/`clsx`/`cva`, arbitrary values).
+  `className` usage (`cn`/`clsx`/`cva`, arbitrary values); an arbitrary value also
+  resolves to the `css.declaration` it sets (`text-[#fff]` → `color`).
 
 ```ts
 import { extractFile, assembleFacts, sortFacts } from '@factlas/core';

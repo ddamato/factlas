@@ -1,5 +1,5 @@
 /**
- * The extraction router (ADR §2.2, Phase 2 step 6).
+ * The extraction router.
  *
  * `extractFile` routes a file by extension: CSS files parse to a PostCSS root and
  * go to `analyzeCss`; TS/TSX files parse to a Babel AST and go to

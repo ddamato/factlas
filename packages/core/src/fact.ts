@@ -1,5 +1,5 @@
 /**
- * The Fact shape — the contract everything binds to (ADR §2.3).
+ * The Fact shape — the contract everything binds to.
  *
  * Every fact has a common {@link FactEnvelope} plus a kind-specific `subject`
  * and (usually) a normalized {@link FactValue}. The discriminated union
@@ -10,7 +10,7 @@
 
 import type { FACT_SCHEMA_VERSION } from './version.js';
 
-/** The v1 fact catalog (ADR §2.3). `kind` is the join key to policies. */
+/** The v1 fact catalog. `kind` is the join key to policies. */
 export type FactKind =
   | 'jsx.element'
   | 'jsx.prop'
@@ -28,7 +28,7 @@ export type FactSource =
   | 'tailwind'
   | 'babel-jsx';
 
-/** How confidently the value is known (ADR §2.5). Drives policy routing. */
+/** How confidently the value is known. Drives policy routing. */
 export type Certainty = 'literal' | 'static-union' | 'dynamic' | 'unknown';
 
 /** The normalized value's type tag. `norm` is `null` for `dynamic`/`unknown`. */
@@ -71,7 +71,7 @@ export interface FactValue {
   type: ValueType;
 }
 
-/** Fields present on every fact, regardless of kind (ADR §2.3). */
+/** Fields present on every fact, regardless of kind. */
 export interface FactEnvelope {
   /**
    * sha256 of canonical `{kind, file, loc, subject, value.norm}`.
@@ -90,7 +90,7 @@ export interface FactEnvelope {
   certainty: Certainty;
   /**
    * Why a value is `dynamic`/`unknown`. Required whenever a value could not be
-   * fully resolved, so nothing is ever dropped silently (ADR §2.4 rule 6).
+   * fully resolved, so nothing is ever dropped silently.
    */
   diagnostic?: string;
 }

@@ -7,7 +7,7 @@
  * package). The template is reconstructed with each `${interpolation}` replaced
  * by a placeholder and routed back through core's CSS parser; declarations whose
  * value contains an interpolation are emitted as honest `dynamic` facts, never
- * dropped (ADR §2.4/§2.5).
+ * dropped.
  *
  * Phase 4 step 11.
  */

@@ -1,5 +1,5 @@
 /**
- * Certainty classification (ADR §2.5 / §3 Phase 3 step 7).
+ * Certainty classification.
  *
  * Reduces a plugin's raw value observation to a final {@link Certainty}. Plugins
  * hint; core decides. The decision tree is deliberately small and total so it is

@@ -6,7 +6,7 @@
  * type only; core normalizes them. Plain CSS is fully static, so every
  * observation is a `literal`.
  *
- * This is a bundled default plugin (ADR §2.2 / §3 Phase 4 step 10).
+ * This is a bundled default plugin.
  */
 
 import {

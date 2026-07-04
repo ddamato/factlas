@@ -1,5 +1,5 @@
 /**
- * Bounded resolver (ADR §2.4 rule 5, Phase 2 step 5).
+ * Bounded resolver.
  *
  * Statically resolves an expression to a literal, a static union of literals, or
  * an honest `dynamic`/`unknown` with a reason — **never** by executing code.

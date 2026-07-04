@@ -1,5 +1,5 @@
 /**
- * Base TS/TSX parser (ADR §2.2, Phase 2 step 4).
+ * Base TS/TSX parser.
  *
  * Core parses **once** with a pinned `@babel/parser` configuration and hands the
  * resulting AST to plugins. Plugins traverse it with the `traverse` re-exported

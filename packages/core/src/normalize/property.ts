@@ -1,5 +1,5 @@
 /**
- * CSS property-name normalization (ADR §3 Phase 3 step 8).
+ * CSS property-name normalization.
  *
  * Canonicalizes property names to kebab-case so an inline `backgroundColor` and
  * a stylesheet's `background-color` describe the same property (and collapse in

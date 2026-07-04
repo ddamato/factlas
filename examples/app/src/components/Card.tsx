@@ -19,15 +19,18 @@ export function Card({ tone, active }: { tone: 'neutral' | 'danger'; active: boo
   return (
     <div
       className={cn(
+        card({ tone }),
+        'w-72',
         'shadow-sm',
-        'text-[#123456]',
-        'w-[13px]',
+        'text-[#123456]', // arbitrary color — an anti-pattern the policy flags
+        'mt-[6px]', // arbitrary spacing — also flagged
         active && 'ring-2 ring-blue-500',
         tone === 'danger' ? 'border-red-300' : 'border-gray-200',
         { 'opacity-50': !active },
       )}
     >
-      card
+      <h3 className="font-medium">Payment failed</h3>
+      <p className="mt-1 text-sm">Your card was declined. Update your billing details.</p>
     </div>
   );
 }

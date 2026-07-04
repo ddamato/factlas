@@ -1,5 +1,5 @@
 /**
- * Coverage metrics over an extracted fact stream (ADR §4).
+ * Coverage metrics over an extracted fact stream.
  *
  * Aggregation is a *consumer* concern, not part of the fact layer — so it lives
  * here in the CLI. `coverageReport` tallies facts by kind/certainty/source and

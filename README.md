@@ -12,8 +12,8 @@ gating) is deliberately **out of scope** — see
 [`examples/evaluation`](./examples/evaluation) for a runnable reference of it
 (guidelines → policies → SQLite → evalite → SARIF).
 
-See [ADR-0001](./ADR.md) for the full design rationale and
-[IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md) for build status.
+See [Design](#design) below for the rationale, the core/plugin boundary, and the
+determinism guarantees.
 
 ## Quick start
 
@@ -62,18 +62,69 @@ const { header, facts, diagnostics } = await extractRepo({
 | [`@factlas/plugin-css`](./packages/plugin-css) | `css.declaration` from PostCSS stylesheets / CSS Modules |
 | [`@factlas/plugin-inline-style`](./packages/plugin-inline-style) | `css.declaration` from JSX `style={{}}` |
 | [`@factlas/plugin-styled`](./packages/plugin-styled) | `css.declaration` from styled-components / emotion |
-| [`@factlas/plugin-tailwind`](./packages/plugin-tailwind) | `css.class` from Tailwind `className` usage |
+| [`@factlas/plugin-tailwind`](./packages/plugin-tailwind) | `css.class` from Tailwind `className` usage; resolves arbitrary values (`text-[#fff]`) to `css.declaration` |
 | [`@factlas/cli`](./packages/cli) | `factlas extract` — run on a repo, emit facts |
 
-## Design guarantees
+## Design
 
-- **Deterministic.** Identical inputs produce byte-identical output; enforced by a
-  golden-fixture snapshot test in CI (`@factlas/e2e`).
-- **Static only.** Never executes repository code (ADR §2.4 rule 5).
-- **Never drops.** Unresolved values become honest `dynamic`/`unknown` facts with
-  a diagnostic reason — never a silent false negative.
-- **Versioned.** `FACT_SCHEMA_VERSION` + `NORMALIZER_VERSION` are folded into the
-  snapshot header; a change invalidates caches and signals a re-extract.
+**Two-stage architecture.** Conformance reduces to deterministic predicates over a
+*normalized model of the code (facts)*, not judgments over raw source — so the work
+splits in two: **extract facts, then assert predicates.** This project is the first
+stage; the second (store, policies, scoring, gating) is commodity and deliberately
+downstream ([docs/DOWNSTREAM.md](./docs/DOWNSTREAM.md)). Two hard requirements shape
+every decision:
+
+- **Determinism over LLM judgment.** Checks must be cheap, reproducible, and
+  explainable, so LLMs are excluded from the evaluation path entirely — allowed, if at
+  all, only at *authoring* time (compiling policies) behind a deterministic gate.
+- **Static analysis only.** The target's code is never executed; every fact comes from
+  parsing source.
+
+**Core owns the invariants; plugins own the technology.** [`@factlas/core`](./packages/core)
+is the one place that can never fork: the Fact schema and versions, pipeline
+orchestration, the determinism machinery (discovery, hashing, canonical JSON,
+content-addressed `fact_id`), and **all normalization** (color / length / keyword /
+property, plus the certainty decision tree). Plugins carry technology knowledge and
+their heavy dependencies (Tailwind pulls in `tailwindcss`) and emit **raw observations
+only — they never normalize.** Core produces every `value.norm`, `certainty`, and
+`fact_id`, so those can't drift between extractors.
+
+**Determinism guarantees:**
+
+- **Byte-identical output** for identical inputs, enforced by a golden-fixture snapshot
+  test in CI ([`@factlas/e2e`](./packages/e2e)). Sort everything; never rely on
+  filesystem order, wall-clock, or locale.
+- **Content-addressed `fact_id`** over the *normalized* value, so `#FFF` and `#ffffff`
+  collapse to one fact.
+- **Repo-relative POSIX paths only** — no absolute paths, timestamps, or environment
+  values in a fact.
+- **Versioned.** `FACT_SCHEMA_VERSION`, `NORMALIZER_VERSION`, tool/plugin versions, and
+  config-file hashes fold into the snapshot header and the run cache key; a change
+  invalidates caches and signals a re-extract.
+- **Never executes code.** Anything past the bounded resolver (one binding hop, literals
+  only, in-file, no `node_modules`, no evaluation) becomes `unknown`.
+- **Never drops.** An unresolved value is an honest `dynamic`/`unknown` fact with a
+  diagnostic reason — never a silent false negative.
+
+**Certainty.** Every fact is `literal | static-union | dynamic | unknown`. Policies
+judge `literal`/`static-union` directly; `dynamic`/`unknown` are never silently passed
+or failed — a policy routes them explicitly (defer/review, or a gated check).
+
+**Why not an existing tool:**
+
+- **CodeQL** — best-in-class query language, but its license prohibits use against
+  private/commercial repos in CI without paid GitHub Advanced Security. Legally
+  unavailable for the target use.
+- **Glean (Meta)** — the right model (facts + derived predicates), but a heavy
+  operational burden and a query language (Angle) that LLMs author poorly. The store
+  boundary is kept clean so Glean stays a future option.
+- **Stylelint** — a *linter* (findings, not facts), PostCSS-only, and blind to
+  TSX-embedded CSS (inline, CSS-in-JS, Tailwind). Usable as reference for rule logic,
+  not as the extractor.
+
+**Non-goals.** Aesthetic or semantic judgment ("does it look right"); runtime/computed
+styling (cascade, theme switching, media-query outcomes); executing or bundling the
+target repository.
 
 ## Development
 

@@ -10,21 +10,22 @@ team can build (or buy) evaluation on top of the facts. None of it is a
 responsibility of this project; it exists so the seams we expose stay useful.
 
 > 🏃 **A runnable reference of everything below lives in
-> [`examples/evaluation`](../examples/evaluation)** — store (SQLite), a SQL policy
-> bundle whose predicates run straight over the facts, SARIF, and a CI gate,
-> evaluated against `examples/app` with off-the-shelf tech. Read on for the
-> rationale; open that package to see it work.
+> [`examples/evaluation`](../examples/evaluation)** — a shared harness (SQLite store
+> + a SQL policy bundle whose predicates run straight over the facts) feeding two
+> reporters: evalite scores each policy, and SARIF for machines/CI. Evaluated
+> against `examples/app` with off-the-shelf tech. Read on for the rationale; open
+> that package to see it work.
 
-> Source of truth for the original full-system design is [ADR-0001](../ADR.md)
-> §2.6 and §3 (Phases 5–6). This file summarizes and marks the boundary.
+> The fact layer this builds on — its contract and guarantees — is described in the
+> [project README's Design section](../README.md#design). This document covers only
+> the downstream system a consumer adds on top.
 
 ## The seam we guarantee
 
 A downstream consumer binds to three stable things this project owns:
 
-1. **The Fact shape** — envelope + 6 kinds (ADR §2.3), published as a versioned
-   JSON Schema (`@factlas/core` → `schema/fact.schema.json`) and gated by
-   `FACT_SCHEMA_VERSION`.
+1. **The Fact shape** — envelope + 6 kinds, published as a versioned JSON Schema
+   (`@factlas/core` → `schema/fact.schema.json`) and gated by `FACT_SCHEMA_VERSION`.
 2. **Deterministic `fact_id`** — content-addressed over the *normalized* value,
    so the same declaration always yields the same id (idempotent upserts).
 3. **`NORMALIZER_VERSION`** — normalization is versioned; a bump is a migration

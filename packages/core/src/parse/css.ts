@@ -1,5 +1,5 @@
 /**
- * Base CSS parser (ADR §2.2, Phase 2 step 4).
+ * Base CSS parser.
  *
  * Core parses stylesheets **once** with PostCSS and hands the root to plugins.
  * The same entry point is reused for CSS carriers lifted out of TSX (styled
