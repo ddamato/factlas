@@ -1,64 +1,86 @@
 /**
- * SARIF 2.1.0 output (DOWNSTREAM.md §4). Emit a Static Analysis Results
- * Interchange Format log so violations drop straight into GitHub code scanning
- * or any SARIF viewer. Types come from `@types/sarif` (the published spec types)
- * — the log itself is plain JSON we construct.
+ * The SARIF reporter for `design-system/policy.json` (DOWNSTREAM.md §4) — the
+ * machine-facing counterpart to the evalite scorecard. It runs every policy and
+ * serializes each matched row as a SARIF 2.1.0 result, so violations drop
+ * straight into GitHub code scanning or any SARIF viewer.
  *
- * Coordinate note: SARIF regions are 1-based for both line and column; factlas
+ * The shared setup — extract, store, load policies, run a policy — lives in
+ * `harness.ts`; this file only turns rows into findings. Valid SARIF is built
+ * with `node-sarif-builder` rather than hand-assembled.
+ *
+ * Coordinate note: SARIF regions are 1-based for line and column; factlas
  * `loc.col` is 0-based (Babel/PostCSS convention), so we emit `col + 1`.
+ *
+ * Run it:  npm run sarif -w @factlas/example-evaluation            (to stdout)
+ *          npm run sarif -w @factlas/example-evaluation results.sarif  (to file)
  */
 
-import type { Log, ReportingDescriptor, Result } from 'sarif';
-import type { EvalResult } from './evaluate.js';
+import { writeFile } from 'node:fs/promises';
+import {
+  SarifBuilder,
+  SarifResultBuilder,
+  SarifRuleBuilder,
+  SarifRunBuilder,
+} from 'node-sarif-builder';
+import { prepare, type Row, runPolicy } from './harness.js';
 
 const INFO_URI = 'https://github.com/ddamato/factlas';
 
-/** Build a SARIF log from an evaluation result. */
-export function toSarif(result: EvalResult): Log {
-  const rules: ReportingDescriptor[] = result.policySet.policies.map((policy) => ({
-    id: policy.id,
-    name: policy.id,
-    shortDescription: { text: policy.help },
+/** Fill a `message` template's `{column}` placeholders from a matched row. */
+function render(template: string, row: Row): string {
+  return template.replace(/\{(\w+)\}/g, (_, key: string) => {
+    const value = row[key];
+    return value == null ? '' : String(value);
+  });
+}
+
+const { db, policySet } = await prepare();
+
+const sarifRun = new SarifRunBuilder().initSimple({
+  toolDriverName: 'factlas-example-eval',
+  toolDriverVersion: policySet.version,
+  url: INFO_URI,
+});
+
+for (const policy of policySet.policies) {
+  // One rule per policy, carrying its guideline provenance and default severity.
+  const rule = new SarifRuleBuilder().initSimple({
+    ruleId: policy.id,
+    shortDescriptionText: policy.help,
     helpUri: INFO_URI,
-    help: { text: policy.help },
-    defaultConfiguration: { level: policy.level },
-    // Provenance: which guideline this policy was compiled from.
-    properties: { guideline: policy.guideline },
-  }));
+  });
+  rule.rule.defaultConfiguration = { level: policy.level };
+  rule.rule.properties = { guideline: policy.guideline };
+  sarifRun.addRule(rule);
 
-  const ruleIndex = new Map(result.policySet.policies.map((policy, i) => [policy.id, i]));
+  // One result per matched row — the row *is* the violation.
+  for (const row of runPolicy(db, policy)) {
+    const result = new SarifResultBuilder().initSimple({
+      ruleId: policy.id,
+      level: policy.level,
+      messageText: render(policy.message, row),
+      fileUri: String(row.file),
+      startLine: Number(row.line),
+      startColumn: Number(row.col) + 1,
+      endLine: Number(row.endLine),
+      endColumn: Number(row.endCol) + 1,
+    });
+    // Content-addressed fact id → stable fingerprint for code-scanning dedup.
+    result.result.partialFingerprints = { factId: String(row.fact_id) };
+    sarifRun.addResult(result);
+  }
+}
 
-  const results: Result[] = result.violations.map((v) => ({
-    ruleId: v.ruleId,
-    ruleIndex: ruleIndex.get(v.ruleId) ?? 0,
-    level: v.level,
-    message: { text: v.message },
-    partialFingerprints: { factId: v.factId },
-    locations: [
-      {
-        physicalLocation: {
-          artifactLocation: { uri: v.file },
-          region: { startLine: v.line, startColumn: v.col + 1 },
-        },
-      },
-    ],
-  }));
+db.close();
 
-  return {
-    $schema: 'https://json.schemastore.org/sarif-2.1.0.json',
-    version: '2.1.0',
-    runs: [
-      {
-        tool: {
-          driver: {
-            name: 'factlas-example-eval',
-            informationUri: INFO_URI,
-            version: result.policySet.version,
-            rules,
-          },
-        },
-        results,
-      },
-    ],
-  };
+const sarifBuilder = new SarifBuilder();
+sarifBuilder.addRun(sarifRun);
+const json = sarifBuilder.buildSarifJsonString({ indent: true });
+
+const outPath = process.argv[2];
+if (outPath) {
+  await writeFile(outPath, `${json}\n`, 'utf8');
+  process.stderr.write(`factlas: SARIF written to ${outPath}\n`);
+} else {
+  process.stdout.write(`${json}\n`);
 }

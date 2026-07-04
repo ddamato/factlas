@@ -4,28 +4,45 @@ A **runnable** reference for the downstream evaluation pipeline described in
 [docs/DOWNSTREAM.md](../../docs/DOWNSTREAM.md). It takes a factlas fact stream all
 the way to a design-system conformance verdict:
 
-**design-system guidelines → compiled policies → facts in a SQLite DB → evalite
-scores the policies → SARIF + a CI gate.**
+**design-system guidelines → compiled policies → facts in a SQLite DB → two
+reporters: evalite scores each policy, and SARIF for machines/CI.**
 
 > ⚠️ **Demonstration only.** This is *not* part of the shipped factlas project and
-> is never published. Factlas owns the fact layer; everything here is what a
-> consuming team builds on top, shown with ordinary off-the-shelf tech
-> (`better-sqlite3`, [evalite](https://evalite.dev), SARIF). It's a private
-> workspace package so CI keeps it working.
+> is never published — it isn't even a buildable library (no `dist`, no exports).
+> Factlas owns the fact layer; everything here is what a consuming team builds on
+> top, shown with ordinary off-the-shelf tech (`better-sqlite3`,
+> [evalite](https://evalite.dev), [node-sarif-builder](https://github.com/nvuillam/node-sarif-builder)).
+> It's a private workspace package so CI keeps it working.
 
-## The flow
+## The shape: shared setup, two reporters
+
+Both reporters need the exact same thing — a queryable fact database and the
+policy bundle — and diverge only in what they do with a policy's matched rows.
+That seam is the file layout:
+
+```
+src/
+  harness.ts       shared: prepare() → { db, policySet };  runPolicy(db, policy) → rows
+  policy.eval.ts   evalite reporter — rows → pass/fail score (for humans)
+  sarif.ts         SARIF reporter   — rows → SARIF 2.1.0 findings (for machines/CI)
+```
+
+Everything up to *"I have the rows a policy selected"* is shared in `harness.ts`;
+what you do with those rows is per-reporter. `harness.prepare()` extracts
+`examples/app`, loads the facts **verbatim** into an in-memory SQLite store, and
+loads `policy.json`. `harness.runPolicy()` runs one policy's SQL and returns the
+matched rows.
 
 ```
 design-system/                       the design system's source of truth
   guidelines.md   ─ compiled to ─▶   policy.json   (1 policy per guideline)
 
-factlas extract examples/app --out facts.ndjson    (NDJSON: one fact per line)
-        │  facts
-        ▼
-   facts.db   ── better-sqlite3: one `facts` table, each fact stored as JSON
-        │                        (common fields = indexed generated columns)
-        ├─▶  evalite   score each policy (violations === 0 ? pass : fail) → scorecard
-        └─▶  evaluate  policy SQL over facts → violations → SARIF 2.1.0 + gate
+harness.prepare():  extract examples/app ─▶ facts ─▶ SQLite `facts` table
+                    (each fact stored as JSON; common fields = generated columns)
+                    + load policy.json
+        │  { db, policySet }
+        ├─▶  policy.eval.ts  (evalite)   runPolicy(...).length === 0 ? pass : fail
+        └─▶  sarif.ts        (SARIF)     each matched row ─▶ a SARIF result
 ```
 
 **Facts are stored verbatim and compared directly to policies.** factlas emits
@@ -42,12 +59,15 @@ so you can see it *consuming* what it's measured against.
 
 Each stage maps to a section of `DOWNSTREAM.md`:
 
-| Stage | File(s) | §|
+| Stage | File | § |
 |---|---|---|
-| Store | [`src/store.ts`](./src/store.ts), [`src/database.ts`](./src/database.ts) — `better-sqlite3`, facts stored as JSON | §1 |
-| Policies | [`../design-system/policy.json`](../design-system/policy.json), compiled from [`guidelines.md`](../design-system/guidelines.md) | §3, §5 |
-| Scoring | [`src/policy.eval.ts`](./src/policy.eval.ts) — evalite | §4 |
-| Report & gate | [`src/evaluate.ts`](./src/evaluate.ts), [`src/sarif.ts`](./src/sarif.ts) | §4 |
+| Prepare — store + policies | [`src/harness.ts`](./src/harness.ts) — `better-sqlite3`, facts as JSON; loads `policy.json` | §1, §3 |
+| Score | [`src/policy.eval.ts`](./src/policy.eval.ts) — evalite | §4 |
+| Report | [`src/sarif.ts`](./src/sarif.ts) — `node-sarif-builder` | §4 |
+
+The store's columns aren't hand-written: `harness.ts` builds its SQLite generated
+columns from [`@factlas/core`'s published column manifest](../../packages/core/schema/columns.json)
+(`schema/columns.json`), so the table can't drift from the fact shape.
 
 ## The source: `../design-system/`
 
@@ -92,50 +112,70 @@ matched row's columns. No separate query files:
 }
 ```
 
-The evaluator runs the `sql`, gets each matched row as an object keyed by column,
-and renders `message` against it (`{norm}` → the row's `norm`, and so on). Zero rows
-= pass. Common fields (`kind`, `certainty`, `value_type`, `norm`, …) are generated
-columns on the `facts` table; kind-specific subject fields come straight out of the
-stored JSON with `json->>'$.subject.…'`. The predicate is **entirely over the fact**
-— a color that factlas resolved to a literal is the violation, because a conformant
-value is a *token reference* (`var(--brand)`), which factlas records as a keyword
-fact, not a literal color. No allowed-set, no lookup table: facts compared straight
-to policy. (If a policy did need reference data — say a list of approved packages —
-it would carry it inline, e.g. via SQLite's `json_each`, rather than a separate ETL
-step.)
+`harness.runPolicy()` runs the `sql` and returns each matched row as an object
+keyed by column. The **SARIF reporter** renders `message` against the row (`{norm}`
+→ the row's `norm`, and so on); the **evalite reporter** just counts the rows. Zero
+rows = pass. Common fields (`kind`, `certainty`, `value_type`, `norm`, …) are
+generated columns on the `facts` table; kind-specific subject fields come straight
+out of the stored JSON with `json->>'$.subject.…'`. The predicate is **entirely over
+the fact** — a color that factlas resolved to a literal is the violation, because a
+conformant value is a *token reference* (`var(--brand)`), which factlas records as a
+keyword fact, not a literal color. No allowed-set, no lookup table: facts compared
+straight to policy. (If a policy did need reference data — say a list of approved
+packages — it would carry it inline, e.g. via SQLite's `json_each`, rather than a
+separate ETL step.)
 
-## Run it
+## Run it (step by step)
+
+> **New here? Do these in order.** They assume only a terminal and
+> [Node.js](https://nodejs.org) ≥ 20 — no prior knowledge of this repo. Copy each
+> command exactly, minding **which directory** it says to run from.
+
+### 1. Install dependencies
+
+From the **repository root** — the top-level `factlas/` folder, *not* this one:
 
 ```bash
-# 1. Extract facts (the part factlas actually does) — NDJSON, one fact per line
-npx @factlas/cli extract examples/app --out facts.ndjson
-
-# 2. Load into a SQLite DB, evaluate, and gate. Writes facts.db (a real,
-#    inspectable database) and results.sarif; exits non-zero on any error.
-node examples/evaluation/dist/cli.js facts.ndjson --db facts.db --sarif results.sarif
-
-# 3. Score the policies with evalite (needs @factlas/* built: `npm run build`)
-npm run eval -w @factlas/example-evaluation
+npm install
 ```
 
-The eval lives in [`src/policy.eval.ts`](./src/policy.eval.ts) — **one `*.eval.ts`
-per policy bundle**. There's a single bundle (`design-system/policy.json`), so
-there's a single eval; its cases are the individual policies inside it.
+One install covers the whole monorepo, this example included. You only do this once.
 
-Step 2 prints:
+### 2. Build the factlas packages
 
-```
-factlas evaluation — acme-design-system@1.0.0
-  [x] error   hardcoded-color          14
-  [!] warning hardcoded-spacing        7
-  [!] warning no-arbitrary-tailwind    2
-  [!] warning no-inline-style          7
-  [i] note    needs-review             5
-  35 findings (14 error, 16 warning, 5 note) -> FAIL
+Still at the **repository root**:
+
+```bash
+npm run build
 ```
 
-Step 3 (evalite) renders a scorecard — one row per enforceable policy, its
-violation count, and its pass/fail score:
+This example imports `@factlas/core` and the plugins as real, compiled packages, so
+their build output has to exist first. **Skip this and you'll get
+`Cannot find module '@factlas/core'`.** Re-run it whenever you change anything under
+`packages/`.
+
+### 3. Move into this example's folder
+
+The runnable package is **`examples/evaluation`** — note the full path.
+`examples/` on its own is just a container with **no** scripts, so `cd examples` is
+*not* enough:
+
+```bash
+cd examples/evaluation
+```
+
+Every command below is run from **inside `examples/evaluation`**. (Prefer to stay at
+the repo root? Append `-w @factlas/example-evaluation` to each `npm run` command
+instead — see [Troubleshooting](#troubleshooting).)
+
+### 4. Score the policies with evalite (the human-readable scorecard)
+
+```bash
+npm run eval
+```
+
+Expected output — one row per enforceable policy (the `note`-level `needs-review` is
+advisory and not scored), its violation count, and its pass/fail score:
 
 ```
 ╔════════════════════════╤════════╤═══════╗
@@ -148,20 +188,64 @@ violation count, and its pass/fail score:
 ╚════════════════════════╧════════╧═══════╝
 ```
 
-`evalite watch` opens the live UI if you prefer. Programmatic use:
+Every score is `0%` **on purpose**: `examples/app` deliberately doesn't conform, so
+each policy catches its violations. The command also **exits non-zero** because
+policies failed — that's the CI gate doing its job, not a bug. For the live UI, run
+`npx evalite watch` instead.
 
-```ts
-import { buildDatabase, loadPolicies, runPolicies, toSarif } from '@factlas/example-evaluation';
+### 5. Emit SARIF (the machine / CI artifact)
 
-const db = buildDatabase(facts, { file: 'facts.db' }); // facts: Fact[]
-const result = runPolicies(db, await loadPolicies());
-const sarifLog = toSarif(result);
+Print it to the terminal:
+
+```bash
+npm run sarif
 ```
+
+…or write it to a file. Put `--` before the filename so npm passes it through to the
+script instead of treating it as an npm flag:
+
+```bash
+npm run sarif -- results.sarif
+```
+
+That writes `results.sarif` into `examples/evaluation/`. It's a SARIF 2.1.0 log — one
+rule per policy, one result per matched row (all five policies, including the `note`),
+each result located from the fact's `loc` with a content-addressed
+`partialFingerprints.factId` for code-scanning dedup:
+
+```jsonc
+{
+  "ruleId": "hardcoded-color",
+  "level": "error",
+  "message": { "text": "Hardcoded color #dddddd on \"border-color\" — reference a color token instead" },
+  "locations": [{ "physicalLocation": {
+    "artifactLocation": { "uri": "src/App.tsx" },
+    "region": { "startLine": 33, "startColumn": 20, "endLine": 33, "endColumn": 39 }
+  }}],
+  "partialFingerprints": { "factId": "cb15c306…" }
+}
+```
+
+Both commands are **self-contained**: each re-extracts `examples/app` internally (via
+`harness.prepare()`), so you don't run `factlas extract` first. In a real CI pipeline
+you'd instead run `factlas extract ./src --out facts.ndjson` once and load *that*
+NDJSON; this example re-extracts purely to stay a single command.
+
+### Troubleshooting
+
+- **`npm error Missing script: "eval"`** (or `"sarif"`) — you're not in
+  `examples/evaluation`. Either `cd examples/evaluation` first, or run from the repo
+  root with the workspace flag: `npm run eval -w @factlas/example-evaluation`.
+  Note `cd examples` is *not* enough — `examples/` has no `package.json` scripts.
+- **`Cannot find module '@factlas/core'`** — the packages aren't built. Run
+  `npm run build` from the **repository root** (step 2), then try again.
+- **`evalite: not found` / `tsx: not found`** — dependencies aren't installed. Run
+  `npm install` from the **repository root** (step 1).
 
 ## Two points this makes concrete
 
 - **Facts compared straight to policy.** A policy is a self-contained SQL predicate
-  over the fact tables — no reference DB, no allowed-set, nothing massaging data in
+  over the `facts` table — no reference DB, no allowed-set, nothing massaging data in
   between. `hardcoded-color` flags a *literal* color outright; a conformant value is
   a token reference, which factlas already records as a keyword/dynamic fact rather
   than a literal color, so it simply doesn't match. The tokens never enter the check.
@@ -173,15 +257,18 @@ const sarifLog = toSarif(result);
 
 ```yaml
 # illustrative — not enabled in this repo
-- run: npx @factlas/cli extract ./src --out facts.ndjson
-- run: node path/to/factlas-eval facts.ndjson --sarif results.sarif
+- run: npm ci
+- run: npm run build
+# -w runs the script from the workspace folder, so the file lands there:
+- run: npm run sarif -w @factlas/example-evaluation -- results.sarif
 - uses: github/codeql-action/upload-sarif@v3
   with:
-    sarif_file: results.sarif
+    sarif_file: examples/evaluation/results.sarif
 ```
 
-The evaluator's non-zero exit on any `error` is the gate; the SARIF upload adds
-inline PR annotations.
+`npm run eval`'s non-zero exit on any failing policy is the gate; the SARIF upload
+adds inline PR annotations. (Severity-based gating — e.g. fail only on `error` — is a
+policy decision a real consumer layers on; this demo keeps the two outputs simple.)
 
 ## Determinism
 
